@@ -166,24 +166,36 @@ int main(void) {
     switch(state){
       case(IDLE): {
         print_state(state);
-        // nrf_gpio_port_write(24, 1);
+        if(direction == 1){
+          state = RIGHT_TURN;
+        }else if(direction == 2){
+          state = LEFT_TURN;
+        }else if(direction == 3){
+          state = ARRIVED;
+        }else{
+          state = IDLE;
+        }
         break;
       }
       case(RIGHT_TURN): {
         print_state(state);
-        // nrf_gpio_port_write(25, 1);
+        nrf_delay_ms(500);
+        direction = 0;
+        state = IDLE;
         break;
       }
       case(LEFT_TURN): {
         print_state(state);
-        // nrf_gpio_port_write(23, 1);
+        nrf_delay_ms(500);
+        direction = 0;
+        state = IDLE;
         break;
       }
       case(ARRIVED): {
         print_state(state);
-        // nrf_gpio_port_write(23, 1);
-        // nrf_gpio_port_write(24, 1);
-        // nrf_gpio_port_write(25, 1);
+        nrf_delay_ms(500);
+        direction = 0;
+        state = IDLE;
         break;
       }
     }
