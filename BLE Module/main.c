@@ -17,6 +17,9 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_drv_spi.h"
+#include "nrf_serial.h"
+#include "nrf_twi_mngr.h"
+#include "nrfx_gpiote.h"
 
 #include "buckler.h"
 #include "display.h"
@@ -26,7 +29,7 @@
 #include "kobukiUtilities.h"
 #include "mpu9250.h"
 #include "simple_ble.h"
-
+#include "Adafruit_DRV2605.h"
 
 
 // I2C manager
@@ -124,6 +127,8 @@ int main(void) {
   nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
   nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
   nrf_gpio_pin_dir_set(25, NRF_GPIO_PIN_DIR_OUTPUT);
+  nrf_gpio_pin_dir_set(BUCKLER_GROVE_D0, NRF_GPIO_PIN_DIR_OUTPUT);
+  nrf_gpio_pin_dir_set(BUCKLER_GROVE_D1, NRF_GPIO_PIN_DIR_OUTPUT);
 
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
@@ -150,18 +155,29 @@ int main(void) {
   i2c_config.frequency = NRF_TWIM_FREQ_100K;
   error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
   APP_ERROR_CHECK(error_code);
+
+
   mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
 
-  // initialize Kobuki
-  kobukiInit();
-  printf("Kobuki initialized!\n");
+  // initialize MPU-9250 driver
+  begin(&twi_mngr_instance);
+  printf("MPU-9250 initialized\n");
+
+  selectLibrary(1);
 
   states state = IDLE;
 
+  // I2C trigger by sending 'go' command 
+
+  // default, internal trigger when sending GO command
+
+  setMode(DRV2605_MODE_EXTTRIGEDGE); 
+  // loop forever
+  uint8_t effect = 14;
+
   // loop forever, running state machine
   while (1) {
-
     // TODO: complete state machine
     switch(state){
       case(IDLE): {
@@ -178,22 +194,42 @@ int main(void) {
         break;
       }
       case(RIGHT_TURN): {
+        
         print_state(state);
-        nrf_delay_ms(500);
+        setWaveform(0, effect);  // play effect 
+        setWaveform(1, 0);       // end waveform
+
+        // go(); // play the effect!
+        nrf_gpio_pin_set(BUCKLER_GROVE_D1);
+        nrf_delay_ms(3000);
+        nrf_gpio_pin_clear(BUCKLER_GROVE_D1);
         direction = 0;
         state = IDLE;
         break;
       }
       case(LEFT_TURN): {
+        
         print_state(state);
-        nrf_delay_ms(500);
+        setWaveform(0, effect);  // play effect 
+        setWaveform(1, 0);       // end waveform
+        // go(); // play the effect!
+        nrf_gpio_pin_set(BUCKLER_GROVE_D0);
+        nrf_delay_ms(3000);
+        nrf_gpio_pin_clear(BUCKLER_GROVE_D0);
         direction = 0;
         state = IDLE;
         break;
       }
       case(ARRIVED): {
         print_state(state);
-        nrf_delay_ms(500);
+        setWaveform(0, effect);  // play effect 
+        setWaveform(1, 0);       // end waveform
+        // go(); // play the effect!
+        nrf_gpio_pin_set(BUCKLER_GROVE_D0);
+        nrf_gpio_pin_set(BUCKLER_GROVE_D1);
+        nrf_delay_ms(3000);
+        nrf_gpio_pin_clear(BUCKLER_GROVE_D0);
+        nrf_gpio_pin_clear(BUCKLER_GROVE_D1);
         direction = 0;
         state = IDLE;
         break;
