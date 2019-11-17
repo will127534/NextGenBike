@@ -7,10 +7,10 @@
 
 #include "nrf.h"
 #include "nrf_gpio.h"
-
+#include "nrf_delay.h"
 
 #include "buckler.h"
-
+#include "nrf_drv_spi.h"
 
 
 uint8_t g_rOffset = (DOTSTAR_BGR & 3);
@@ -21,11 +21,9 @@ uint8_t g_bOffset = ((DOTSTAR_BGR >> 4) & 3);
 
 
 
-uint16_t g_NumLEDs = 24;                 // Number of pixels
+uint16_t g_NumLEDs = 72;                 // Number of pixels
 
-uint8_t g_PixelsDataArray[24*3] = {0};       // LED RGB values (3 bytes ea.)
-
-
+uint8_t g_PixelsDataArray[72*3] = {0};       // LED RGB values (3 bytes ea.)
 
 
 
@@ -35,17 +33,18 @@ void sw_spi_out(uint8_t n) { // Bitbang SPI write
 
   for(uint8_t i=8; i--; n <<= 1) {
 
-    if(n & 0x80)  nrf_gpio_pin_set(BUCKLER_GROVE_D0);
+    if(n & 0x80)  nrf_gpio_pin_set(BUCKLER_SD_MISO);
 
-    else          nrf_gpio_pin_clear(BUCKLER_GROVE_D0);
+    else          nrf_gpio_pin_clear(BUCKLER_SD_MISO);
 
-     nrf_gpio_pin_set(BUCKLER_GROVE_D1);
-
-     nrf_gpio_pin_clear(BUCKLER_GROVE_D1);
+    nrf_delay_us(5);
+     nrf_gpio_pin_set(BUCKLER_SD_MOSI);
+    nrf_delay_us(5);
+     nrf_gpio_pin_clear(BUCKLER_SD_MOSI);
 
   }
-
 }
+
 
 
 
