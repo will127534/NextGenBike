@@ -21,13 +21,30 @@
 #include "buckler.h"
 #include "US5881LUA.h"
 
+void TIMER4_IRQHandler(void) {
+  // This should always be the first line of the interrupt handler!
+  // It clears the event so that it doesn't happen again
+  NRF_TIMER4->EVENTS_COMPARE[0] = 0;
+  if(degreeCount<=picWidth)
+    printf("degree %ld\n",degreeCount);
+  NRF_TIMER4->CC[0]=read_timer()+degreeWidth;
+  degreeCount++;
+
+  // Place your interrupt handler code here
+
+}
+
 void virtual_timer_init(void) {
   //timer initialization code here
 
   NRF_TIMER4->BITMODE = 3; 
   NRF_TIMER4->PRESCALER = 4; 
   NRF_TIMER4->TASKS_CLEAR = 1;
-  NRF_TIMER4->TASKS_START = 1;
+  NRF_TIMER4->TASKS_START = 1;  
+  NRF_TIMER4->INTENSET|=1<<16;
+  NRF_TIMER4->CC[0] = 0xFFFE;
+  NVIC_EnableIRQ(TIMER4_IRQn);
+  NVIC_SetPriority(TIMER4_IRQn,5);
 }
 
 uint32_t read_timer(void) {
@@ -39,20 +56,30 @@ uint32_t read_timer(void) {
 
 
 void setup(void){
-    revolutions = 0;
+    degreeWidth = 0;//time to rotate 1 degree
+    degreeCount = 0;//current degree passed by
+    // revolutions = 0;
     oldTime = read_timer();
     rpm = 0;
+    picWidth=5;
 }
 
-void loop(void){
-  if(revolutions>=20){
-      printf("old time:%d\n",oldTime);
-      rpm = 30*1000000*revolutions/(read_timer() - oldTime);
-      oldTime = read_timer();
-      printf("new time:%d\n",oldTime);
-      revolutions = 0;
-      printf("RPM: %d\n", rpm);
-    }
-}
+
+// void loop(void){
+//   if(revolutions>=2){//1 revolution
+//       printf("old time:%ld\n",oldTime);
+//       rpm = 30*1000000*revolutions/(read_timer() - oldTime);
+//       degreeWidth = (read_timer() - oldTime)/(picWidth*revolutions);
+//       printf("total time for one revolution:%ld\n",(read_timer()-oldTime)/revolutions);
+//       degreeCount = 0;
+//       NRF_TIMER4->TASKS_CLEAR = 1;
+//       NRF_TIMER4->TASKS_START = 1;
+//       oldTime = read_timer();//clear timer
+//       revolutions = 0;
+//       NRF_TIMER4->CC[0]=degreeWidth-1;
+//       printf("RPM: %ld\n", rpm);
+//     }
+// }
+
 
 
