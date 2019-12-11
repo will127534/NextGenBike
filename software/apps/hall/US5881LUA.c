@@ -21,18 +21,6 @@
 #include "buckler.h"
 #include "US5881LUA.h"
 
-void TIMER4_IRQHandler(void) {
-  // This should always be the first line of the interrupt handler!
-  // It clears the event so that it doesn't happen again
-  NRF_TIMER4->EVENTS_COMPARE[0] = 0;
-  if(degreeCount<=picWidth)
-    printf("degree %ld\n",degreeCount);
-  NRF_TIMER4->CC[0]=read_timer()+degreeWidth;
-  degreeCount++;
-
-  // Place your interrupt handler code here
-
-}
 
 void virtual_timer_init(void) {
   //timer initialization code here
@@ -48,7 +36,6 @@ void virtual_timer_init(void) {
 }
 
 uint32_t read_timer(void) {
-
     // Should return the value of the internal counter for TIMER4
     NRF_TIMER4->TASKS_CAPTURE[1] = 1;
     return NRF_TIMER4->CC[1];
@@ -61,7 +48,7 @@ void setup(void){
     // revolutions = 0;
     oldTime = read_timer();
     rpm = 0;
-    picWidth=5;
+    picWidth=360;//360*35
 }
 
 
