@@ -181,10 +181,10 @@ mpu9250_measurement_t mpu9250_read_gyro_integration() {
     integrated_angle.z_axis += measure.z_axis*time_diff;
   }
   if (measure.x_axis > 0.5 || measure.x_axis < -0.5) {
-    integrated_angle.x_axis += measure.x_axis*time_diff;
+    integrated_angle.x_axis += (measure.x_axis + 1.68)*time_diff;
   }
   if (measure.y_axis > 0.5 || measure.y_axis < -0.5) {
-    integrated_angle.y_axis += measure.y_axis*time_diff;
+    integrated_angle.y_axis += (measure.y_axis + 0.67)*time_diff;
   }
   return integrated_angle;
 }
