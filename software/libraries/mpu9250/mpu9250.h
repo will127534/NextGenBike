@@ -55,6 +55,12 @@ void mpu9250_stop_gyro_integration();
 // Return the integrated value as floating point in degrees
 mpu9250_measurement_t mpu9250_read_gyro_integration();
 
+//calibrate the gyroscope to remove the still bias
+void mpu9250_calibrate_gyro(uint8_t samples);
+
+//calibrate the accelerometer to remove the still bias
+void mpu9250_calibrate_accel(uint8_t samples);
+
 // Definitions
 
 typedef enum {

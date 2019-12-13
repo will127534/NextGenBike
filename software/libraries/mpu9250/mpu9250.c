@@ -26,6 +26,16 @@ static const nrf_drv_timer_t gyro_timer = NRFX_TIMER_INSTANCE(1);
 static mpu9250_measurement_t integrated_angle;
 static uint32_t prev_timer_val;
 
+//gyro bias
+static float gx_bias = 0;
+static float gy_bias = 0;
+static float gz_bias = 0;
+
+//accelerometer bias
+static float ax_bias = 0;
+static float ay_bias = 0;
+static float az_bias = 0;
+
 static void gyro_timer_event_handler(nrf_timer_event_t event_type, void* p_context) {
   // don't care about events
 }
@@ -101,9 +111,9 @@ mpu9250_measurement_t mpu9250_read_accelerometer() {
   // convert to g
   // coversion at +/- 2 g is 16384 LSB/g
   mpu9250_measurement_t measurement = {0};
-  measurement.x_axis = ((float)x_val) / 16384;
-  measurement.y_axis = ((float)y_val) / 16384;
-  measurement.z_axis = ((float)z_val) / 16384;
+  measurement.x_axis = ((float)x_val) / 16384 + ax_bias;
+  measurement.y_axis = ((float)y_val) / 16384 + ay_bias;
+  measurement.z_axis = ((float)z_val) / 16384 + az_bias;
   return measurement;
 }
 
@@ -116,9 +126,9 @@ mpu9250_measurement_t mpu9250_read_gyro() {
   // convert to g
   // coversion at +/- 2000 degrees/second is 16.4 LSB/g
   mpu9250_measurement_t measurement = {0};
-  measurement.x_axis = ((float)x_val) / 16.4;
-  measurement.y_axis = ((float)y_val) / 16.4;
-  measurement.z_axis = ((float)z_val) / 16.4;
+  measurement.x_axis = ((float)x_val) / 16.4 + gx_bias;
+  measurement.y_axis = ((float)y_val) / 16.4 + gy_bias;
+  measurement.z_axis = ((float)z_val) / 16.4 + gz_bias;
   return measurement;
 }
 
@@ -181,11 +191,43 @@ mpu9250_measurement_t mpu9250_read_gyro_integration() {
     integrated_angle.z_axis += measure.z_axis*time_diff;
   }
   if (measure.x_axis > 0.5 || measure.x_axis < -0.5) {
-    integrated_angle.x_axis += (measure.x_axis + 1.68)*time_diff;
+    integrated_angle.x_axis += measure.x_axis*time_diff;
   }
   if (measure.y_axis > 0.5 || measure.y_axis < -0.5) {
-    integrated_angle.y_axis += (measure.y_axis + 0.67)*time_diff;
+    integrated_angle.y_axis += measure.y_axis*time_diff;
   }
   return integrated_angle;
+}
+
+void mpu9250_calibrate_gyro(uint8_t samples) {
+  float xbias = 0;
+  float ybias = 0;
+  float zbias = 0;
+  for(uint8_t i = 0; i<samples; i++){
+    mpu9250_measurement_t measure = mpu9250_read_gyro();
+    xbias += measure.x_axis / (float)samples;
+    ybias += measure.y_axis / (float)samples;
+    zbias += measure.z_axis / (float)samples;
+    nrf_delay_ms(20);
+  }
+  gx_bias = -xbias;
+  gy_bias = -ybias;
+  gz_bias = -zbias;
+}
+
+void mpu9250_calibrate_accel(uint8_t samples) {
+  float xbias = 0;
+  float ybias = 0;
+  float zbias = 0;
+  for(uint8_t i = 0; i<samples; i++){
+    mpu9250_measurement_t measure = mpu9250_read_accelerometer();
+    xbias += measure.x_axis / (float)samples;
+    ybias += measure.y_axis / (float)samples;
+    zbias += (measure.z_axis-1) / (float)samples;
+    nrf_delay_ms(20);
+  }
+  ax_bias = -xbias;
+  ay_bias = -ybias;
+  az_bias = -zbias;
 }
 
