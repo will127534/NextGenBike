@@ -35,9 +35,9 @@ void sw_spi_out(uint8_t n) { // Bitbang SPI write
 
     else          nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0,30));
 
-    nrf_delay_us(5);
+    //nrf_delay_us(1);
      nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0,31));
-    nrf_delay_us(5);
+    //nrf_delay_us(1);
      nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0,31));
 
 

@@ -26,7 +26,7 @@ void virtual_timer_init(void) {
   //timer initialization code here
 
   NRF_TIMER4->BITMODE = 3; 
-  NRF_TIMER4->PRESCALER = 4; 
+  NRF_TIMER4->PRESCALER = 1; 
   NRF_TIMER4->TASKS_CLEAR = 1;
   NRF_TIMER4->TASKS_START = 1;  
   NRF_TIMER4->INTENSET|=1<<16;
@@ -48,7 +48,7 @@ void setup(void){
     // revolutions = 0;
     oldTime = read_timer();
     rpm = 0;
-    picWidth=360;//360*35
+    picWidth=360;//36*35
 }
 
 
