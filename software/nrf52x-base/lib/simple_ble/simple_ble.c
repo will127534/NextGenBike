@@ -812,6 +812,7 @@ void __attribute__((weak)) initialize_app_timer (void) {
 void __attribute__((weak)) advertising_start(void) {
 
     uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+    // uint32_t err_code = sd_ble_advertising_start(BLE_GAP_ADV_SET_HANDLE_NOT_SET, 1);
 
     if (err_code != NRF_ERROR_INVALID_STATE) {
         // Ignore Invalid State responses. Occurs when start is called twice

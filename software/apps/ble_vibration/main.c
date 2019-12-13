@@ -44,6 +44,7 @@ typedef enum {
 } states;
 
 volatile uint8_t direction = 0;
+static uint8_t brake = 0;
 
 // Intervals for advertising and connections
 static simple_ble_config_t ble_config = {
@@ -62,8 +63,11 @@ static simple_ble_service_t robot_service = {{
                 0x59,0x4D,0x5e,0xf6,0xa0,0xed,0x07,0x46}
 }};
 
+
 // TODO: Declare characteristics and variables for your service
 static simple_ble_char_t direction_char = {.uuid16 = 0xEDA1};
+// static simple_ble_char_t brake_char = {.uuid16 = 0xAEEF};
+static simple_ble_char_t brake_char = {.uuid16 = 0xEDA2};
 
 simple_ble_app_t* simple_ble_app;
 
@@ -73,6 +77,16 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
   uint8_t* data = (p_ble_evt -> evt).gatts_evt.params.write.data;
   direction = *data;
   printf("direction = %d\n", direction);
+
+
+}
+
+void test(uint8_t a){
+  brake = a;
+  direction = a;
+  printf("brake = %d\n", brake);
+  simple_ble_notify_char(&direction_char);
+  simple_ble_notify_char(&brake_char);
 }
 
 void print_state(states current_state){
@@ -116,8 +130,17 @@ int main(void) {
       &robot_service, &direction_char);
   printf("Added Direction characteristics\n");
 
+  simple_ble_add_characteristic(1, 1, 1, 0,
+      sizeof(brake), (uint8_t*) &brake,
+      &robot_service, &brake_char);
+  printf("Added Brake characteristics\n");
+
   // Start Advertising
   simple_ble_adv_only_name();
+
+  // char * test = "blah";
+  // simple_ble_adv_manuf_data(test, strlen(test));
+  // simple_ble_adv_manuf_data(brake, strlen(brake));
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////// BLE ////////////////////////////////////////////
@@ -191,6 +214,7 @@ int main(void) {
         }else{
           state = IDLE;
         }
+
         break;
       }
       case(RIGHT_TURN): {
@@ -204,6 +228,7 @@ int main(void) {
         nrf_delay_ms(3000);
         nrf_gpio_pin_clear(BUCKLER_GROVE_D1);
         direction = 0;
+
         state = IDLE;
         break;
       }
@@ -217,6 +242,7 @@ int main(void) {
         nrf_delay_ms(3000);
         nrf_gpio_pin_clear(BUCKLER_GROVE_D0);
         direction = 0;
+
         state = IDLE;
         break;
       }
@@ -232,9 +258,12 @@ int main(void) {
         nrf_gpio_pin_clear(BUCKLER_GROVE_D1);
         direction = 0;
         state = IDLE;
+
+        test(2);
         break;
       }
     }
+
   }
 }
 

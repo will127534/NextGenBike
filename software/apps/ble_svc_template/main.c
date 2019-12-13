@@ -25,8 +25,8 @@ NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
-        .device_id         = 0x0000, // TODO: replace with your lab bench number
-        .adv_name          = "EE149 LED", // used in advertisements if there is room
+        .device_id         = 0x0001, // TODO: replace with your lab bench number
+        .adv_name          = "BIKE", // used in advertisements if there is room
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
         .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS),
@@ -38,11 +38,34 @@ static simple_ble_service_t led_service = {{
                 0xB5,0x4D,0x22,0x2B,0x89,0x10,0xE6,0x32}
 }};
 
+static simple_ble_service_t light_service = {{
+    .uuid128 = {0x2F,0x56,0xA9,0x7A,0xC4,0x4D,0x38,0x80,
+                0x20,0x47,0x7E,0x0E,0xEE,0xAE,0x97,0xDE}
+}};
+
 static simple_ble_char_t led_state_char = {.uuid16 = 0x1090};
-static bool led_state = true;
+static simple_ble_char_t light_char = {.uuid16 = 0xAEEF};
+// static bool led_state = true;
+
+volatile float lux = 0.0f;
+static char message[16] = {0};
+
+void lux_callback(float lux_in) {
+  lux = lux_in;
+  //simple_ble_adv_manuf_data((uint8_t*)&lux, 1);
+  printf("lux = %f\n", lux);
+  char lux_display[16];
+  sprintf(lux_display, "%f", lux);
+  display_write(lux_display, DISPLAY_LINE_1);
+  simple_ble_notify_char(&light_char);
+}
 
 void light_timer_callback() {
-    //TODO: implement this function to initiate a read of the light sensor
+    printf("Light timer fired!\n");
+    // TODO: implement this function!
+    // Use Simple BLE function to read light sensor and put data in
+    // advertisement, but be careful about doing it in the callback itself!
+    max44009_schedule_read_lux();
 }
 
 /*******************************************************************************
@@ -51,16 +74,26 @@ void light_timer_callback() {
 // Main application state
 simple_ble_app_t* simple_ble_app;
 
+// void ble_evt_write(ble_evt_t const* p_ble_evt) {
+//     if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
+//       printf("Got write to LED characteristic!\n");
+//       if (led_state) {
+//         printf("Turning on LED!\n");
+//         display_write("ON", DISPLAY_LINE_1);
+//         nrf_gpio_pin_clear(BUCKLER_LED0);
+//       } else {
+//         printf("Turning off LED!\n");
+//         display_write("OFF", DISPLAY_LINE_1);
+//         nrf_gpio_pin_set(BUCKLER_LED0);
+//       }
+//     }
+// }
+
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
     if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
+      display_write("", DISPLAY_LINE_0);
       printf("Got write to LED characteristic!\n");
-      if (led_state) {
-        printf("Turning on LED!\n");
-        nrf_gpio_pin_clear(BUCKLER_LED0);
-      } else {
-        printf("Turning off LED!\n");
-        nrf_gpio_pin_set(BUCKLER_LED0);
-      }
+      display_write(message, DISPLAY_LINE_0);
     }
 }
 
@@ -113,11 +146,25 @@ int main(void) {
   // Setup BLE
   simple_ble_app = simple_ble_init(&ble_config);
 
-  simple_ble_add_service(&led_service);
+  //simple_ble_add_service(&led_service);
+  //printf("add led svc\n");
 
-  simple_ble_add_characteristic(1, 1, 0, 0,
-      sizeof(led_state), (uint8_t*)&led_state,
-      &led_service, &led_state_char);
+  simple_ble_add_service(&light_service);
+  printf("add light svc\n");
+
+  // simple_ble_add_characteristic(1, 1, 0, 0,
+  //     sizeof(led_state), (uint8_t*)&led_state,
+  //     &led_service, &led_state_char);
+  //simple_ble_add_characteristic(1, 1, 0, 0,
+  //    sizeof(message), (uint8_t*)message,
+  //    &led_service, &led_state_char);
+  //printf("add led char\n");
+
+  // New service for 9.2.3-7
+  simple_ble_add_characteristic(1, 1, 1, 0,
+      sizeof(lux), (uint8_t*) &lux,
+      &light_service, &light_char);
+  printf("add light char\n");
 
   // Start Advertising
   simple_ble_adv_only_name();
@@ -126,6 +173,8 @@ int main(void) {
   app_timer_init();
   app_timer_create(&light_timer, APP_TIMER_MODE_REPEATED, (app_timer_timeout_handler_t) light_timer_callback);
   app_timer_start(light_timer, APP_TIMER_TICKS(1000), NULL); // 1000 milliseconds
+
+  max44009_set_read_lux_callback(lux_callback);
 
   while(1) {
     power_manage();
