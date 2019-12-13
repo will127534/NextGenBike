@@ -365,6 +365,8 @@ color material_grey_900
 color notification_action_color_filter
 color notification_icon_bg_color
 color notification_material_background_media_default_color
+color primary
+color primaryDark
 color primary_dark_material_dark
 color primary_dark_material_light
 color primary_material_dark
@@ -385,8 +387,10 @@ color switch_thumb_material_dark
 color switch_thumb_material_light
 color switch_thumb_normal_material_dark
 color switch_thumb_normal_material_light
+color textColor
 color tooltip_background_dark
 color tooltip_background_light
+color windowBackground
 dimen abc_action_bar_content_inset_material
 dimen abc_action_bar_content_inset_with_nav
 dimen abc_action_bar_default_height_material
@@ -600,6 +604,7 @@ drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
 drawable ic_launcher
+drawable ic_launcher3
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -650,6 +655,7 @@ id beginning
 id blocking
 id bottom
 id buttonArrived
+id buttonConnect
 id buttonLeft
 id buttonPanel
 id buttonRight
@@ -865,6 +871,7 @@ string abc_toolbar_collapse_description
 string app_name
 string arrived
 string ble_not_supported
+string connect
 string connected
 string disconnected
 string error_bluetooth_not_supported

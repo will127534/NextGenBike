@@ -57,6 +57,7 @@ public class DeviceControlActivity extends Activity {
     private Button mButtonLeft;
     private Button mButtonArrived;
     private Button mButtonRight;
+    private Button mConnect;
     //private BluetoothGattService mCustomService;
     //private BluetoothGattCharacteristic mCharacteristic;
 
@@ -85,6 +86,7 @@ public class DeviceControlActivity extends Activity {
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
+            Log.d("MAIN", "device ADDR: "+mDeviceAddress);
             //mCustomService = mBluetoothLeService.mBluetoothGatt.getService(UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb"));
 
             //mCharacteristic = mCustomService.getCharacteristic(UUID.fromString("4607eda1-f65e-4d59-a9ff-84420d87a4ca"));
@@ -142,7 +144,7 @@ public class DeviceControlActivity extends Activity {
                             // it first so it doesn't update the data field on the user interface.
                             if (mNotifyCharacteristic != null) {
                                 mBluetoothLeService.setCharacteristicNotification(
-                                        mNotifyCharacteristic, false);
+                                        mNotifyCharacteristic, true);
                                 mNotifyCharacteristic = null;
                             }
                             mBluetoothLeService.readCharacteristic(characteristic);
@@ -175,6 +177,7 @@ public class DeviceControlActivity extends Activity {
         mButtonLeft = findViewById(R.id.buttonLeft);
         mButtonArrived = findViewById(R.id.buttonArrived);
         mButtonRight = findViewById(R.id.buttonRight);
+        mConnect = findViewById(R.id.buttonConnect);
 
         mButtonLeft.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -195,7 +198,15 @@ public class DeviceControlActivity extends Activity {
                 mBluetoothLeService.right();
             }
         });
-
+        mConnect.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                mBluetoothLeService.setCharacteristicNotification2();
+                //mBluetoothLeService.connectBreakout("C0:98:E5:49:00:02");
+                //mConnect.setVisibility(android.view.View.INVISIBLE);
+                //mBluetoothLeService.right();
+            }
+        });
 
 
         // Sets up UI references.

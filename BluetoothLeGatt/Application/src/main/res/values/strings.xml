@@ -36,4 +36,5 @@
     <string name="left">Left</string>
     <string name="arrived">Arrived</string>
     <string name="right">Right</string>
+    <string name="connect">Connect Breakout</string>
 </resources>

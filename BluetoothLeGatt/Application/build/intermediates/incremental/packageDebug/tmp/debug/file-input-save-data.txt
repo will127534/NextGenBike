@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Thu Nov 14 17:10:22 PST 2019
+#Thu Nov 14 17:14:38 PST 2019
 0.baseType=DIRECTORY
 0.base=C\:\\Users\\cjyan\\249Final\\BluetoothLeGatt\\Application\\build\\intermediates\\dex\\debug\\mergeDexDebug\\out
 0.path=classes.dex
