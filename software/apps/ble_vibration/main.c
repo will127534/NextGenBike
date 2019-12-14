@@ -340,35 +340,48 @@ int main(void) {
     switch(x){
       case(0):{
         display_write("", DISPLAY_LINE_1);
+        if(turned){
+          nrfx_gpiote_out_clear(LEDS[0]);
+          nrfx_gpiote_out_clear(LEDS[1]);
+        }
+        turned = false;
         break;
       }
 
       case(1):{
         display_write("LEFT", DISPLAY_LINE_1);
+        turned = true;
         break;
       }
 
       case(2):{
         display_write("RIGHT", DISPLAY_LINE_1);
+        turned = true;
         break;
       }
 
       case(10):{
         display_write("     BRAKE", DISPLAY_LINE_1);
+        if(turned){
+          nrfx_gpiote_out_clear(LEDS[0]);
+          nrfx_gpiote_out_clear(LEDS[1]);
+        }
+        turned = false;
         break;
       }
 
       case(11):{
         display_write("LEFT BRAKE", DISPLAY_LINE_1);
+        turned = true;
         break;
       }
 
       case(12):{
         display_write("     BRAKE RIGHT", DISPLAY_LINE_1);
+        turned = true;
         break;
       }
     }
-    nrf_delay_ms(10);
     // printf("here\n");
   }
 }
