@@ -232,7 +232,6 @@ int main(void) {
   error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
   APP_ERROR_CHECK(error_code);
 
-
   mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
 
@@ -271,6 +270,7 @@ int main(void) {
 
   // loop forever, running state machine
   while (1) {
+    brake = 0;
     // TODO: complete state machine
     switch(state){
       case(IDLE): {

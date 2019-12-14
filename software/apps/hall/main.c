@@ -24,7 +24,7 @@
 // LED array
 static uint8_t LEDS[3] = {NRF_GPIO_PIN_MAP(0,30),NRF_GPIO_PIN_MAP(0,31), BUCKLER_LED2};
 volatile bool new_degree = 0;
-
+volatile bool new_rpm = 0;
 uint32_t Wheel(uint32_t WheelPos){
     float angle = (float)WheelPos;
     
@@ -144,40 +144,53 @@ void TIMER4_IRQHandler(void) {
 
 void GPIOTE_IRQHandler(void) {
     NRF_GPIOTE->EVENTS_IN[0] = 0;
-    printf("interrupt\n");
+    //printf("interrupt\n");
     // nrf_gpio_pin_toggle(BUCKLER_LED0);
   	// printf("old time:%ld\n",oldTime);
   	rpm = 30*16000000/(read_timer() - oldTime);
+    new_rpm = 1;
   	degreeWidth = (read_timer() - oldTime)/(picWidth);
   	// printf("total time for one revolution:%ld\n",(read_timer()-oldTime));
   	degreeCount = 0;
+    new_degree = 1;
   	NRF_TIMER4->TASKS_CLEAR = 1;
   	NRF_TIMER4->TASKS_START = 1;
   	oldTime = read_timer();//clear timer
   	NRF_TIMER4->CC[0]=degreeWidth-1;
-  	printf("RPM: %ld\n", rpm);
+  	//printf("RPM: %ld\n", rpm);
 }
 uint8_t char_array [35][360] = {0};
 void write_LED(char c, int start, uint8_t color){
   char *fontB;
   fontB=font8x8_basic[c];//E
-  printf("Start=%d,%d\n",start,start+6);
+  //printf("Start=%d,%d\n",start,start+6);
   for(int i=start+6;i>=start;i--){
       for(int j=30;j>=23;j--){
         char_array[j][i]=(fontB[7-(j-23)]>>(6-(i-start)))&1;
         if(char_array[j][i] == 1){
           char_array[j][i] = color;
         }
-        //printf(" %d", char_array[j][i]);
       }
-      printf("\n");
-
-
   }
-  printf("\n");
-
-
 }
+
+// void write_LED_string(char str[], int size, int start, uint8_t color){
+//   for(int =0;i<size;i++){ 
+//     char c=str[i];
+//     char *fontB;
+//      fontB=font8x8_basic[c];//E
+//      //printf("Start=%d,%d\n",start,start+6);
+//      for(int i=start+6;i>=start;i--){
+//          for(int j=30;j>=23;j--){
+//            char_array[j][i]=(fontB[7-(j-23)]>>(6-(i-start)))&1;
+//            if(char_array[j][i] == 1){
+//              char_array[j][i] = color;
+//            }
+//          }
+//      }
+//   }
+// }
+
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
   // initialize RTT library
@@ -226,6 +239,7 @@ int main(void) {
       printf("%d", char_array[j][i]);
     }
   }
+
 */
   // write_LED('D', 7,255/11*1);
   // write_LED('L', 7+8*1,255/11*2);
@@ -239,8 +253,8 @@ int main(void) {
   // write_LED('E', 7+8*9,255/11*10);
   // write_LED('H', 7+8*10,255/11*11);
   // printf("done\n");
-  //write_LED(",", 47);
-  //write_LED("W", 55);
+  // write_LED(",", 47);
+  // write_LED("W", 55);
   
   //while(1);
   //  font=font8x8_basic[76];//L
@@ -253,7 +267,20 @@ int main(void) {
   // loop forever
    // printf("Time: %d\n", oldTime);
   //uint32_t count = 0;
+
   while (1) {
+    // if(new_rpm){
+    //   write_LED('0'+(rpm/1)%10, 60,255/11*1);
+    //   write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
+    //   write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
+    //   write_LED('0'+(rpm/1000)%10, 60+8*3,255/11*4);
+    //   write_LED('=', 60+8*4,255/11*5);
+    //   write_LED('M', 60+8*5,255/11*6);
+    //   write_LED('P', 60+8*6,255/11*7);
+    //   write_LED('R', 60+8*7,255/11*8);
+    //   new_rpm = 0;
+    // }
+
     /*
       for (int i=0; i < 35; i++) {
            SetPixelColor(i, Wheel(count%360));
@@ -293,14 +320,23 @@ int main(void) {
       // else{
       for (int i=0; i < 35; i++) {
         // uint8_t res=char_array[i][degreeCount];
-        // if(res!=0)
-
+        //  if(res!=0)
         //   SetPixelColor(i, Wheel(res));
-        // else{
-        //   //SetPixelColorRGB(i, res*255,res*255,res*255);
+        //  else{
+        //    //SetPixelColorRGB(i, res*255,res*255,res*255);
         //   SetPixelColor(i,0);
+        //  }
+        // if(degreeCount==0)
+        //   SetPixelColor(i, Wheel(330));
+        // else if (degreeCount==20)
+        // {
+        //   /* code */
+        //   SetPixelColor(i, Wheel(10));
         // }
+        // else
+        //   SetPixelColor(i,0);
         SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
+        
       }
       PixelShow();
 
