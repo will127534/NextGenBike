@@ -35,8 +35,8 @@
 
 // LED and button array
 //static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
-static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 28), NRF_GPIO_PIN_MAP(0, 29)};
-static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 30), NRF_GPIO_PIN_MAP(0, 31)};
+static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 24), NRF_GPIO_PIN_MAP(0, 25)};
+static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 3), NRF_GPIO_PIN_MAP(0, 4)};
 static bool turned = false;
 
 // I2C manager
@@ -115,7 +115,7 @@ void print_state(states current_state){
 // handler called whenever an input pin BUTTON changes
 void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   switch(pin) {
-    case NRF_GPIO_PIN_MAP(0, 30): {
+    case NRF_GPIO_PIN_MAP(0, 3): {
       printf("here0\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[0])) {
         if(nrf_gpio_pin_out_read(LEDS[0]) == 1) {
@@ -127,7 +127,7 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
       break;
     }
 
-    case NRF_GPIO_PIN_MAP(0, 31): {
+    case NRF_GPIO_PIN_MAP(0, 4): {
       printf("here1\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[1])) {
         if(nrf_gpio_pin_out_read(LEDS[1]) == 1) {
@@ -237,11 +237,9 @@ int main(void) {
   printf("MPU-9250 initialized\n");
 
     //init bike state
-  error_code = init_bike_state(3, 70, 5);
+  error_code = init_bike_state(5, 70, 5);
   APP_ERROR_CHECK(error_code);
   printf("Bike State initialized!\n");
-
-
     // configure two gpio buttons
   // input pin, trigger on releasing
   nrfx_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
@@ -337,25 +335,50 @@ int main(void) {
 
     //bike
     int x = read_bike_state();
-    
-    if(x >= 10) {
-      display_write("BREAK", DISPLAY_LINE_1);
-    } else {
-      display_write("", DISPLAY_LINE_1);
-    }
-    if(x % 10 == 0){
-      display_write("", DISPLAY_LINE_1);
-      if(turned){
-        nrfx_gpiote_out_clear(LEDS[0]);
-        nrfx_gpiote_out_clear(LEDS[1]);
+    switch(x){
+      case(0):{
+        display_write("", DISPLAY_LINE_1);
+        if(turned){
+          nrfx_gpiote_out_clear(LEDS[0]);
+          nrfx_gpiote_out_clear(LEDS[1]);
+        }
+        turned = false;
+        break;
       }
-      turned = false;
-    } else if (x % 10 == 1){
-      display_write("LEFT", DISPLAY_LINE_1);
-      turned = true;
-    } else if (x % 10 == 2){
-      display_write("RIGHT", DISPLAY_LINE_1);
-      turned = true;
+
+      case(1):{
+        display_write("LEFT", DISPLAY_LINE_1);
+        turned = true;
+        break;
+      }
+
+      case(2):{
+        display_write("RIGHT", DISPLAY_LINE_1);
+        turned = true;
+        break;
+      }
+
+      case(10):{
+        display_write("     BRAKE", DISPLAY_LINE_1);
+        if(turned){
+          nrfx_gpiote_out_clear(LEDS[0]);
+          nrfx_gpiote_out_clear(LEDS[1]);
+        }
+        turned = false;
+        break;
+      }
+
+      case(11):{
+        display_write("LEFT BRAKE", DISPLAY_LINE_1);
+        turned = true;
+        break;
+      }
+
+      case(12):{
+        display_write("     BRAKE RIGHT", DISPLAY_LINE_1);
+        turned = true;
+        break;
+      }
     }
     // printf("here\n");
   }

@@ -327,6 +327,7 @@ int main(void) {
   //uint32_t count = 0;
 
   while (1) {
+    
     // if(new_rpm){
     //   write_LED('0'+(rpm/1)%10, 60,255/11*1);
     //   write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
@@ -384,6 +385,15 @@ int main(void) {
         //    //SetPixelColorRGB(i, res*255,res*255,res*255);
         //   SetPixelColor(i,0);
         //  }
+        // if(degreeCount==0)
+        //   SetPixelColor(i, Wheel(330));
+        // else if (degreeCount==20)
+        // {
+        //   /* code */
+        //   SetPixelColor(i, Wheel(10));
+        // }
+        // else
+        //   SetPixelColor(i,0);
         SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
         
       }
