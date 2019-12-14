@@ -121,13 +121,13 @@ static float acc_threshold = 0.2;
     //bool isDecrease = rotated_measurement.y_axis < prev_y;
     prev_y = rotated_measurement.y_axis;
     
-    
+    /*
     printf("gyro\n");
     printf("%.6f    ", gyro_measurement.x_axis);
     printf("%.6f    ", gyro_measurement.y_axis);
     printf("%.6f    \n", gyro_measurement.z_axis);
     
-    /*
+    
     printf("q\n");
     printf("%.6f    ", quaternion.w);
     printf("%.6f    ", quaternion.x);
