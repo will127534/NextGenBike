@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +58,10 @@ public class DeviceControlActivity extends Activity {
     private Button mButtonLeft;
     private Button mButtonArrived;
     private Button mButtonRight;
-    private Button mConnect;
+    private Button mButtonSetNotification;
+    private Button mButtonConnect;
+    private Context mContext;
+    private int mDuration;
     //private BluetoothGattService mCustomService;
     //private BluetoothGattCharacteristic mCharacteristic;
 
@@ -177,32 +181,92 @@ public class DeviceControlActivity extends Activity {
         mButtonLeft = findViewById(R.id.buttonLeft);
         mButtonArrived = findViewById(R.id.buttonArrived);
         mButtonRight = findViewById(R.id.buttonRight);
-        mConnect = findViewById(R.id.buttonConnect);
-
+        mButtonSetNotification = findViewById(R.id.buttonNotification);
+        mButtonConnect = findViewById(R.id.buttonConnect);
+        mContext = getApplicationContext();
+        mDuration = Toast.LENGTH_SHORT;
         mButtonLeft.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                mBluetoothLeService.left();
+                if(mBluetoothLeService.left()){
+                    CharSequence text = "Send Left Succeed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }else{
+
+                    CharSequence text = "Send Left Failed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }
+
 
             }
         });
         mButtonArrived.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                mBluetoothLeService.arrived();
+                if(mBluetoothLeService.arrived()){
+                    CharSequence text = "Send Arrived Succeed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }else{
+                    CharSequence text = "Send Arrived Failed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+
+                }
             }
         });
         mButtonRight.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                mBluetoothLeService.right();
+                if(mBluetoothLeService.right()){
+                    CharSequence text = "Send Right Succeed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+
+                }else{
+                    CharSequence text = "Send Right Failed";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+
+                }
             }
         });
-        mConnect.setOnClickListener(new View.OnClickListener() {
+        mButtonSetNotification.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                mBluetoothLeService.setCharacteristicNotification2();
+                if(mBluetoothLeService.setCharacteristicNotificationButton()){
+                    CharSequence text = "Set Notification Succeed!";
+                    mButtonSetNotification.setVisibility(android.view.View.INVISIBLE);
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }else{
+                    CharSequence text = "Set Notification Failed!";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }
+                //mBluetoothLeService.readCharacteristic();
+
                 //mBluetoothLeService.connectBreakout("C0:98:E5:49:00:02");
+                //mConnect.setVisibility(android.view.View.INVISIBLE);
+                //mBluetoothLeService.right();
+            }
+        });
+        mButtonConnect.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+
+                if(mBluetoothLeService.connectBreakout("C0:98:E5:49:00:02")){
+                    CharSequence text = "Connect to Breakout Successful!";
+                    mButtonSetNotification.setVisibility(android.view.View.INVISIBLE);
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }else{
+                    CharSequence text = "Connect to Breakout Failed!";
+                    Toast toast = Toast.makeText(mContext, text, mDuration);
+                    toast.show();
+                }
                 //mConnect.setVisibility(android.view.View.INVISIBLE);
                 //mBluetoothLeService.right();
             }

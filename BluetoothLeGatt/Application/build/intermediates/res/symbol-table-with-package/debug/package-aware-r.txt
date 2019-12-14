@@ -657,6 +657,7 @@ id bottom
 id buttonArrived
 id buttonConnect
 id buttonLeft
+id buttonNotification
 id buttonPanel
 id buttonRight
 id cancel_action
@@ -887,6 +888,7 @@ string menu_stop
 string no_data
 string right
 string search_menu_title
+string setNotification
 string status_bar_notification_info_overflow
 string title_devices
 string unknown_characteristic
