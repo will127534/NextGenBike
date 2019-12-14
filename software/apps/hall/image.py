@@ -32,7 +32,7 @@ def print_as_c_array(name,data):
 Red = np.zeros((360,35))
 Blue = np.zeros((360,35))
 Green = np.zeros((360,35))
-data=load_image("nyan.png")
+data=load_image("right.png")
 print(data.shape)
 
 
@@ -44,6 +44,7 @@ for degree in range(360):
         data_R = data[y][x][0]
         data_G = data[y][x][1]
         data_B = data[y][x][2]
+
 
         Red[degree][r] = data_R
         Green[degree][r] = data_G

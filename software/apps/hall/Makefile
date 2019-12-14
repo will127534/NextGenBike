@@ -5,6 +5,7 @@ PROJECT_NAME = $(shell basename "$(realpath ./)")
 NRF_IC = nrf52832
 SDK_VERSION = 15
 SOFTDEVICE_MODEL = blank
+# SOFTDEVICE_MODEL = blank
 
 # Source and header files
 APP_HEADER_PATHS += .
@@ -15,7 +16,8 @@ APP_SOURCES = $(notdir $(wildcard ./*.c))
 NRF_BASE_DIR = ../../nrf52x-base/
 
 # Include board Makefile (if any)
-include ./Board.mk
+# include ./Board.mk
+include ../../boards/buckler_revB/Board.mk
 
 # Include main Makefile
 include $(NRF_BASE_DIR)make/AppMakefile.mk

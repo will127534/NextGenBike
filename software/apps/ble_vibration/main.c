@@ -84,8 +84,6 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
   uint8_t* data = (p_ble_evt -> evt).gatts_evt.params.write.data;
   direction = *data;
   printf("direction = %d\n", direction);
-
-
 }
 
 void test(uint8_t a){
