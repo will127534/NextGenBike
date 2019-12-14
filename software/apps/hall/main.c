@@ -269,6 +269,7 @@ int main(void) {
   //uint32_t count = 0;
 
   while (1) {
+    
     // if(new_rpm){
     //   write_LED('0'+(rpm/1)%10, 60,255/11*1);
     //   write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);

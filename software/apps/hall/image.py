@@ -32,7 +32,7 @@ def print_as_c_array(name,data):
 Red = np.zeros((360,35))
 Blue = np.zeros((360,35))
 Green = np.zeros((360,35))
-data=load_image("nyan.png")
+data=load_image("right.png")
 print(data.shape)
 
 
