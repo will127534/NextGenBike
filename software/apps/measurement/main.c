@@ -27,8 +27,8 @@
 
 // LED and button array
 //static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
-static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 3), NRF_GPIO_PIN_MAP(0, 4)};
-static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 28), NRF_GPIO_PIN_MAP(0, 29)};
+static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 24), NRF_GPIO_PIN_MAP(0, 25)};
+static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 3), NRF_GPIO_PIN_MAP(0, 4)};
 static bool turned = false;
  
 // I2C manager
@@ -37,7 +37,8 @@ NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 // handler called whenever an input pin BUTTON changes
 void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   switch(pin) {
-    case NRF_GPIO_PIN_MAP(0, 28): {
+    case NRF_GPIO_PIN_MAP(0, 3): {
+      printf("here0\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[0])) {
         if(nrf_gpio_pin_out_read(LEDS[0]) == 1) {
           nrfx_gpiote_out_clear(LEDS[0]);
@@ -48,7 +49,8 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
       break;
     }
 
-    case NRF_GPIO_PIN_MAP(0, 29): {
+    case NRF_GPIO_PIN_MAP(0, 4): {
+      printf("here1\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[1])) {
         if(nrf_gpio_pin_out_read(LEDS[1]) == 1) {
           nrfx_gpiote_out_clear(LEDS[1]);
@@ -113,18 +115,19 @@ int main (void) {
   APP_ERROR_CHECK(error_code);
 
   //init bike state
-  error_code = init_bike_state(3, 70, 5);
+  error_code = init_bike_state(5, 70, 5);
   APP_ERROR_CHECK(error_code);
   printf("IMU andd Bike State initialized!\n");
 
+  
   // configure two gpio buttons
   // input pin, trigger on releasing
   nrfx_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
-  in_config.pull = NRF_GPIO_PIN_NOPULL;
+  in_config.pull = NRF_GPIO_PIN_PULLUP;
   error_code = nrfx_gpiote_in_init(BUTTONS[0], &in_config, pin_change_handler);
   nrfx_gpiote_in_event_enable(BUTTONS[0], true);
 
-  in_config.pull = NRF_GPIO_PIN_NOPULL;
+  in_config.pull = NRF_GPIO_PIN_PULLUP;
   error_code = nrfx_gpiote_in_init(BUTTONS[1], &in_config, pin_change_handler);
   nrfx_gpiote_in_event_enable(BUTTONS[1], true);
 
