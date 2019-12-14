@@ -18,6 +18,7 @@
 #include "US5881LUA.h"
 #include "APA102.h"
 #include "font8x8_basic.h"
+#include "image.h"
 
 
 // LED array
@@ -226,18 +227,18 @@ int main(void) {
     }
   }
 */
-  write_LED('D', 7,255/11*1);
-  write_LED('L', 7+8*1,255/11*2);
-  write_LED('R', 7+8*2,255/11*3);
-  write_LED('O', 7+8*3,255/11*4);
-  write_LED('W', 7+8*4,255/11*5);
-  write_LED(',', 7+8*5,255/11*6);
-  write_LED('O', 7+8*6,255/11*7);
-  write_LED('L', 7+8*7,255/11*8);
-  write_LED('L', 7+8*8,255/11*9);
-  write_LED('E', 7+8*9,255/11*10);
-  write_LED('H', 7+8*10,255/11*11);
-  printf("done\n");
+  // write_LED('D', 7,255/11*1);
+  // write_LED('L', 7+8*1,255/11*2);
+  // write_LED('R', 7+8*2,255/11*3);
+  // write_LED('O', 7+8*3,255/11*4);
+  // write_LED('W', 7+8*4,255/11*5);
+  // write_LED(',', 7+8*5,255/11*6);
+  // write_LED('O', 7+8*6,255/11*7);
+  // write_LED('L', 7+8*7,255/11*8);
+  // write_LED('L', 7+8*8,255/11*9);
+  // write_LED('E', 7+8*9,255/11*10);
+  // write_LED('H', 7+8*10,255/11*11);
+  // printf("done\n");
   //write_LED(",", 47);
   //write_LED("W", 55);
   
@@ -291,14 +292,15 @@ int main(void) {
       // }
       // else{
       for (int i=0; i < 35; i++) {
-        uint8_t res=char_array[i][degreeCount];
-        if(res!=0)
+        // uint8_t res=char_array[i][degreeCount];
+        // if(res!=0)
 
-          SetPixelColor(i, Wheel(res));
-        else{
-          //SetPixelColorRGB(i, res*255,res*255,res*255);
-          SetPixelColor(i,0);
-        }
+        //   SetPixelColor(i, Wheel(res));
+        // else{
+        //   //SetPixelColorRGB(i, res*255,res*255,res*255);
+        //   SetPixelColor(i,0);
+        // }
+        SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
       }
       PixelShow();
 

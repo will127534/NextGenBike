@@ -949,6 +949,7 @@ void simple_ble_add_characteristic(uint8_t read, uint8_t write, uint8_t notify, 
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
     cccd_md.vloc      = BLE_GATTS_VLOC_STACK;
     char_md.p_cccd_md = &cccd_md;
+    char_md.char_props.notify = 1;
 
     // Set attribute metadata
     ble_gatts_attr_md_t attr_md;

@@ -31,6 +31,13 @@
 #include "simple_ble.h"
 #include "Adafruit_DRV2605.h"
 
+#include "bike_break.h"
+
+// LED and button array
+//static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
+static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 28), NRF_GPIO_PIN_MAP(0, 29)};
+static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 30), NRF_GPIO_PIN_MAP(0, 31)};
+static bool turned = false;
 
 // I2C manager
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
@@ -83,9 +90,9 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
 
 void test(uint8_t a){
   brake = a;
-  direction = a;
+  // direction = a;
   printf("brake = %d\n", brake);
-  simple_ble_notify_char(&direction_char);
+  // simple_ble_notify_char(&direction_char);
   simple_ble_notify_char(&brake_char);
 }
 
@@ -105,6 +112,38 @@ void print_state(states current_state){
     break;
     }
 }
+
+
+// handler called whenever an input pin BUTTON changes
+void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+  switch(pin) {
+    case NRF_GPIO_PIN_MAP(0, 30): {
+      printf("here0\n");
+      if (!nrfx_gpiote_in_is_set(BUTTONS[0])) {
+        if(nrf_gpio_pin_out_read(LEDS[0]) == 1) {
+          nrfx_gpiote_out_clear(LEDS[0]);
+        } else {
+          nrfx_gpiote_out_set(LEDS[0]);
+        }
+      }
+      break;
+    }
+
+    case NRF_GPIO_PIN_MAP(0, 31): {
+      printf("here1\n");
+      if (!nrfx_gpiote_in_is_set(BUTTONS[1])) {
+        if(nrf_gpio_pin_out_read(LEDS[1]) == 1) {
+          nrfx_gpiote_out_clear(LEDS[1]);
+        } else {
+          nrfx_gpiote_out_set(LEDS[1]);
+        }
+      }
+      break;
+    }
+  }
+}
+
+
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -146,12 +185,26 @@ int main(void) {
   //////////////////////////////////////////// BLE ////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////
 
-  // initialize LEDs
-  nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
-  nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
-  nrf_gpio_pin_dir_set(25, NRF_GPIO_PIN_DIR_OUTPUT);
+
+
+  // initialize GPIO driver
+  if (!nrfx_gpiote_is_init()) {
+    error_code = nrfx_gpiote_init();
+  }
+  APP_ERROR_CHECK(error_code);
+
   nrf_gpio_pin_dir_set(BUCKLER_GROVE_D0, NRF_GPIO_PIN_DIR_OUTPUT);
   nrf_gpio_pin_dir_set(BUCKLER_GROVE_D1, NRF_GPIO_PIN_DIR_OUTPUT);
+
+  // configure leds
+  // manually-controlled (simple) output, initially set
+  nrfx_gpiote_out_config_t out_config = NRFX_GPIOTE_CONFIG_OUT_SIMPLE(true);
+  for (int i=0; i<2; i++) {
+    error_code = nrfx_gpiote_out_init(LEDS[i], &out_config);
+    APP_ERROR_CHECK(error_code);
+    nrfx_gpiote_out_clear(LEDS[i]);
+  }
+
 
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
@@ -183,9 +236,28 @@ int main(void) {
   mpu9250_init(&twi_mngr_instance);
   printf("IMU initialized!\n");
 
-  // initialize MPU-9250 driver
   begin(&twi_mngr_instance);
   printf("MPU-9250 initialized\n");
+
+    //init bike state
+  error_code = init_bike_state(3, 70, 5);
+  APP_ERROR_CHECK(error_code);
+  printf("Bike State initialized!\n");
+
+
+    // configure two gpio buttons
+  // input pin, trigger on releasing
+  nrfx_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
+  in_config.pull = NRF_GPIO_PIN_PULLUP;
+  error_code = nrfx_gpiote_in_init(BUTTONS[0], &in_config, pin_change_handler);
+  nrfx_gpiote_in_event_enable(BUTTONS[0], true);
+
+  in_config.pull = NRF_GPIO_PIN_PULLUP;
+  error_code = nrfx_gpiote_in_init(BUTTONS[1], &in_config, pin_change_handler);
+  nrfx_gpiote_in_event_enable(BUTTONS[1], true);
+
+  APP_ERROR_CHECK(error_code);
+  printf("initialized!\n");
 
   selectLibrary(1);
 
@@ -259,11 +331,35 @@ int main(void) {
         direction = 0;
         state = IDLE;
 
-        test(2);
+        test(5);
         break;
       }
     }
 
+
+    //bike
+    int x = read_bike_state();
+    
+    if(x >= 10) {
+      display_write("BREAK", DISPLAY_LINE_1);
+    } else {
+      display_write("", DISPLAY_LINE_1);
+    }
+    if(x % 10 == 0){
+      display_write("", DISPLAY_LINE_1);
+      if(turned){
+        nrfx_gpiote_out_clear(LEDS[0]);
+        nrfx_gpiote_out_clear(LEDS[1]);
+      }
+      turned = false;
+    } else if (x % 10 == 1){
+      display_write("LEFT", DISPLAY_LINE_1);
+      turned = true;
+    } else if (x % 10 == 2){
+      display_write("RIGHT", DISPLAY_LINE_1);
+      turned = true;
+    }
+    // printf("here\n");
   }
 }
 
