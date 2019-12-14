@@ -326,6 +326,15 @@ int main(void) {
         //    //SetPixelColorRGB(i, res*255,res*255,res*255);
         //   SetPixelColor(i,0);
         //  }
+        // if(degreeCount==0)
+        //   SetPixelColor(i, Wheel(330));
+        // else if (degreeCount==20)
+        // {
+        //   /* code */
+        //   SetPixelColor(i, Wheel(10));
+        // }
+        // else
+        //   SetPixelColor(i,0);
         SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
         
       }
