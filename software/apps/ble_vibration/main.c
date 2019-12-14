@@ -355,7 +355,7 @@ int main(void) {
       }
 
       case(2):{
-        display_write("RIGHT", DISPLAY_LINE_1);
+        display_write("           RIGHT", DISPLAY_LINE_1);
         turned = true;
         break;
       }
