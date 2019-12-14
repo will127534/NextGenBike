@@ -27,8 +27,8 @@ static float prev_y = 0.01;
 static int samples_s = 5;
 static float break_sensitivity_s = 50;
 static float turn_sensitivity_s = 20;
-static float acc_threshold = 0.2;
-static float still_threshold = 0.05;
+static const float acc_threshold = 0.2;
+static const float still_threshold = 0.05;
   
   void convert_angle_to_quaternion(mpu9250_measurement_t angle){
     float yaw = angle.z_axis * 3.1415 / 180;
