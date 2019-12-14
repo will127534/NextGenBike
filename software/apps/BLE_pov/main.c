@@ -191,7 +191,7 @@ void GPIOTE_IRQHandler(void) {
   	NRF_TIMER4->CC[0]=degreeWidth-1;
   	//printf("RPM: %ld\n", rpm);
 }
-uint8_t char_array [35][360] = {0};
+uint8_t char_array [35][180] = {0};
 void write_LED(char c, int start, uint8_t color){
   char *fontB;
   fontB=font8x8_basic[c];//E
@@ -309,7 +309,7 @@ simple_ble_app = simple_ble_init(&ble_config);
   // write_LED('L', 7+8*8,255/11*9);
   // write_LED('E', 7+8*9,255/11*10);
   // write_LED('H', 7+8*10,255/11*11);
-  // printf("done\n");
+  printf("done\n");
   // write_LED(",", 47);
   // write_LED("W", 55);
   
@@ -328,7 +328,7 @@ simple_ble_app = simple_ble_init(&ble_config);
   while (1) {
     
     if(new_rpm){
-    	
+    	/*
       write_LED('0'+(rpm/1)%10, 60,255/11*1);
       write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
       write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
@@ -337,7 +337,7 @@ simple_ble_app = simple_ble_init(&ble_config);
       write_LED('M', 60+8*5,255/11*6);
       write_LED('P', 60+8*6,255/11*7);
       write_LED('R', 60+8*7,255/11*8);
-      
+      */
       new_rpm = 0;
     }
 
@@ -379,13 +379,15 @@ simple_ble_app = simple_ble_init(&ble_config);
       // }
       // else{
       for (int i=0; i < 35; i++) {
-        // uint8_t res=char_array[i][degreeCount];
-        //  if(res!=0)
-        //   SetPixelColor(i, Wheel(res));
-        //  else{
-        //    //SetPixelColorRGB(i, res*255,res*255,res*255);
-        //   SetPixelColor(i,0);
-        //  }
+         /*
+         uint8_t res=char_array[i][degreeCount];
+         if(res!=0)
+           SetPixelColor(i, Wheel(res));
+          else{
+            //SetPixelColorRGB(i, res*255,res*255,res*255);
+           SetPixelColor(i,0);
+          }
+          */
         // if(degreeCount==0)
         //   SetPixelColor(i, Wheel(330));
         // else if (degreeCount==20)
