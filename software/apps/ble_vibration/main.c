@@ -35,8 +35,8 @@
 
 // LED and button array
 //static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
-static uint8_t LEDS[2] = {NRF_GPIO_PIN_MAP(0, 24), NRF_GPIO_PIN_MAP(0, 25)};
-static uint8_t BUTTONS[2] = {NRF_GPIO_PIN_MAP(0, 3), NRF_GPIO_PIN_MAP(0, 4)};
+static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
+static uint8_t BUTTONS[2] = {BUCKLER_GROVE_A0, BUCKLER_GROVE_A1};
 static bool turned = false;
 
 // I2C manager
@@ -86,7 +86,7 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
   printf("direction = %d\n", direction);
 }
 
-void test(uint8_t a){
+void ble_brake_write(uint8_t a){
   brake = a;
   // direction = a;
   printf("brake = %d\n", brake);
@@ -115,8 +115,8 @@ void print_state(states current_state){
 // handler called whenever an input pin BUTTON changes
 void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   switch(pin) {
-    case NRF_GPIO_PIN_MAP(0, 3): {
-      printf("here0\n");
+    case BUCKLER_GROVE_A0: {
+      //printf("here0\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[0])) {
         if(nrf_gpio_pin_out_read(LEDS[0]) == 1) {
           nrfx_gpiote_out_clear(LEDS[0]);
@@ -127,8 +127,8 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
       break;
     }
 
-    case NRF_GPIO_PIN_MAP(0, 4): {
-      printf("here1\n");
+    case BUCKLER_GROVE_A1: {
+      //printf("here1\n");
       if (!nrfx_gpiote_in_is_set(BUTTONS[1])) {
         if(nrf_gpio_pin_out_read(LEDS[1]) == 1) {
           nrfx_gpiote_out_clear(LEDS[1]);
@@ -327,7 +327,7 @@ int main(void) {
         direction = 0;
         state = IDLE;
 
-        test(5);
+        //test(5);
         break;
       }
     }
@@ -360,6 +360,7 @@ int main(void) {
 
       case(10):{
         display_write("     BRAKE", DISPLAY_LINE_1);
+        ble_brake_write(5);
         if(turned){
           nrfx_gpiote_out_clear(LEDS[0]);
           nrfx_gpiote_out_clear(LEDS[1]);
@@ -370,12 +371,14 @@ int main(void) {
 
       case(11):{
         display_write("LEFT BRAKE", DISPLAY_LINE_1);
+        ble_brake_write(5);
         turned = true;
         break;
       }
 
       case(12):{
         display_write("     BRAKE RIGHT", DISPLAY_LINE_1);
+        ble_brake_write(5);
         turned = true;
         break;
       }
