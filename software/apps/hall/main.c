@@ -20,6 +20,39 @@
 #include "font8x8_basic.h"
 #include "image.h"
 
+/*#include "simple_ble.h"
+
+volatile uint8_t brake = 0;
+
+// Intervals for advertising and connections
+static simple_ble_config_t ble_config = {
+        // c0:98:e5:49:xx:xx
+        .platform_id       = 0x49,    // used as 4th octect in device BLE address
+        .device_id         = 0x0002, // TODO: replace with your lab bench number
+        .adv_name          = "BIKE", // used in advertisements if there is room
+        .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
+        .min_conn_interval = MSEC_TO_UNITS(100, UNIT_1_25_MS),
+        .max_conn_interval = MSEC_TO_UNITS(200, UNIT_1_25_MS),
+};
+
+//4607eda0-f65e-4d59-a9ff-84420d87a4ca
+static simple_ble_service_t robot_service = {{
+    .uuid128 = {0xca,0xa4,0x87,0x0d,0x42,0x84,0xff,0xA9,
+                0x59,0x4D,0x5e,0xf6,0xa0,0xed,0x07,0x46}
+}};
+
+// TODO: Declare characteristics and variables for your service
+static simple_ble_char_t brake_char = {.uuid16 = 0xEDA1};
+
+simple_ble_app_t* simple_ble_app;
+
+extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
+    // TODO: logic for each characteristic and related state changes
+  // uint8_t* data = (p_ble_evt->evt).gap_evt.params.adv_report.data.p_data;
+  uint8_t* data = (p_ble_evt -> evt).gatts_evt.params.write.data;
+  brake = *data;
+  printf("ble send brake = %d\n", brake);
+}*/
 
 // LED array
 static uint8_t LEDS[3] = {NRF_GPIO_PIN_MAP(0,30),NRF_GPIO_PIN_MAP(0,31), BUCKLER_LED2};
@@ -222,6 +255,31 @@ int main(void) {
   // Don't forget to initialize your timer library
   virtual_timer_init();
   setup();
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////// BLE ////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Setup BLE
+/*simple_ble_app = simple_ble_init(&ble_config);
+
+  simple_ble_add_service(&robot_service);
+
+  simple_ble_add_characteristic(1, 1, 1, 0,
+      sizeof(brake), (uint8_t*) &brake,
+      &robot_service, &brake_char);
+  printf("Added Brake characteristics\n");
+
+  // Start Advertising
+  simple_ble_adv_only_name();
+*/
+  // char * test = "blah";
+  // simple_ble_adv_manuf_data(test, strlen(test));
+  // simple_ble_adv_manuf_data(brake, strlen(brake));
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////// BLE ////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   /*
   char *fontA;
