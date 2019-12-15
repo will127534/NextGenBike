@@ -238,7 +238,7 @@ public class DeviceControlActivity extends Activity {
                 // TODO Auto-generated method stub
                 if(mBluetoothLeService.setCharacteristicNotificationButton()){
                     CharSequence text = "Set Notification Succeed!";
-                    mButtonSetNotification.setVisibility(android.view.View.INVISIBLE);
+                    //mButtonSetNotification.setVisibility(android.view.View.INVISIBLE);
                     Toast toast = Toast.makeText(mContext, text, mDuration);
                     toast.show();
                 }else{
@@ -257,9 +257,10 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
 
-                if(mBluetoothLeService.connectBreakout("C0:98:E5:49:00:02")){
+
+                if(mBluetoothLeService.connectBreakout("C0:98:E5:49:00:12")){
                     CharSequence text = "Connect to Breakout Successful!";
-                    mButtonSetNotification.setVisibility(android.view.View.INVISIBLE);
+                    //mButtonConnect.setVisibility(android.view.View.INVISIBLE);
                     Toast toast = Toast.makeText(mContext, text, mDuration);
                     toast.show();
                 }else{

@@ -16,6 +16,7 @@
 
 package com.example.android.bluetoothlegatt;
 
+import android.app.Activity;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -29,9 +30,13 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +51,8 @@ public class BluetoothLeService extends Service {
     public static final UUID NRF_NAVIGATION_CHAR_UUID = UUID.fromString("4607eda1-f65e-4d59-a9ff-84420d87a4ca");
     public static final UUID NRF_BRAKE_CHAR_UUID =      UUID.fromString("4607eda2-f65e-4d59-a9ff-84420d87a4ca");
 
-    public static final UUID BREAKOUT_SERVICE_UUID =    UUID.fromString("4707eda0-f65e-4d59-a9ff-84420d87a4ca");
-    public static final UUID BREAKOUT_CHAR_UUID =       UUID.fromString("4707eda2-f65e-4d59-a9ff-84420d87a4ca");
+    public static final UUID BREAKOUT_SERVICE_UUID =    UUID.fromString("4607eda0-f65e-4d59-a9ff-84420d87a4ca");
+    public static final UUID BREAKOUT_CHAR_UUID =       UUID.fromString("4607eda1-f65e-4d59-a9ff-84420d87a4ca");
 
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
@@ -139,10 +144,44 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            Log.d("BT", "CharacteristicChanged: "+characteristic.getUuid()+"val: "+ characteristic.getValue());
+            Log.d("BT", "CharacteristicChanged UUID: "+characteristic.getUuid());
+            if(characteristic.getUuid().equals(NRF_BRAKE_CHAR_UUID)){
+
+                final byte[] data = characteristic.getValue();
+                if (data != null && data.length > 0) {
+                    final StringBuilder stringBuilder = new StringBuilder(data.length);
+                    for(byte byteChar : data)
+                        stringBuilder.append(String.format("%02X ", byteChar));
+                    Log.d("BT", "CharacteristicChanged VALUE: "+stringBuilder);
+
+                    Log.d("BT", "breakout connected? " + mBreakoutConnected);
+                    //ByteBuffer wrapped = ByteBuffer.wrap(data); // big-endian by default
+                    int dataInteger = data[0] & 0xFF;
+                    Log.d("BT", "dataInteger: " + dataInteger);
+                    if(mBreakoutConnected){
+                        notifyBreakOut(dataInteger);
+                    }
+
+                }
+
+
+            }
+            //brakeToast(characteristic);
+
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
+
+    public void toast(final String text){
+            final Context context = getApplicationContext();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
+    }
     private final BluetoothGattCallback mGattCallbackBreakout = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -224,12 +263,7 @@ public class BluetoothLeService extends Service {
                     stringBuilder.append(String.format("%02X ", byteChar));
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
             }
-            if(characteristic.getUuid().equals(NRF_BRAKE_CHAR_UUID)){
-                Log.d("BT", "BRAKE: "+characteristic.getValue());
-                if(mBreakoutConnected){
-                    notifyBreakOut();
-                }
-            }
+
         }
         sendBroadcast(intent);
     }
@@ -324,6 +358,7 @@ public class BluetoothLeService extends Service {
     }
     public boolean connectBreakout(final String address) {
         if (mBluetoothAdapter == null || address == null) {
+            Log.d("BT", "Breakout connection failed!");
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
@@ -335,8 +370,12 @@ public class BluetoothLeService extends Service {
             if (mBluetoothGattBreakout.connect()) {
                 mConnectionStateBreakout = STATE_CONNECTING;
                 mBreakoutConnected = true;
+                Log.d("BT", "Breakout connected!");
+                toast("Breakout connected!");
                 return true;
             } else {
+                Log.d("BT", "Breakout connection failed!");
+                toast("Breakout connection Failed!");
                 return false;
             }
         }
@@ -477,7 +516,9 @@ public class BluetoothLeService extends Service {
             return true;
         }
     }
+
     public boolean setCharacteristicNotificationButton(){
+
         Log.d("BT", "setCN");
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -498,11 +539,16 @@ public class BluetoothLeService extends Service {
         Log.d("BLE", "Descriptor write: " + mBluetoothGatt.writeDescriptor(desc)); // returns true
         return true;
     }
-    public void notifyBreakOut(){
+    public void notifyBreakOut(int data){
+
+
+        Log.d("BT", "Into notify breakout with data: " + data);
         BluetoothGattCharacteristic characteristic =
                 mBluetoothGattBreakout.getService(BREAKOUT_SERVICE_UUID)
                         .getCharacteristic(BREAKOUT_CHAR_UUID);
-        characteristic.setValue(3,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
+        characteristic.setValue(data,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
+
+
         if(!mBluetoothGattBreakout.writeCharacteristic(characteristic)){
             Log.d("BT", "Failed to notify breakout");
         }else{

@@ -270,7 +270,7 @@ public class DeviceScanActivity extends ListActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(device.getName() != null && device.getName().equals("BIKE")){
+                            if(device.getName() != null && (device.getName().equals("BIKE") || device.getName().equals("POV_BLE"))){
                                 Log.d("DS", "BIKE\n");
                                 //mBluetoothAdapter.stopLeScan(mLeScanCallbackStop);
                                 //mScanning = false;
