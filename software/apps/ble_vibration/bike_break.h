@@ -25,7 +25,7 @@ mpu9250_measurement_t rotate_axes(mpu9250_measurement_t acc, quaternion_t q);
 //and calculate the average acceleration
 //
 //return the average acceleration of 3 axies in float points
-mpu9250_measurement_t read_smoothed();
+mpu9250_measurement_t read_smoothed(void);
 
 //read the 3 axies from acceleromete
 //calculate is the device still
@@ -37,7 +37,7 @@ bool is_still(mpu9250_measurement_t acc);
 //acceleration without gravity factor, and find the bike state
 //
 //return 0 if bike is breaking, otherwise return 1
-int read_bike_state();
+int read_bike_state(void);
 
 //read the number of samples and sensitivity, and initialze gyroscope
 // lower the number to increase sensitivity

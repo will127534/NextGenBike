@@ -32,6 +32,7 @@
 #include "Adafruit_DRV2605.h"
 
 #include "bike_break.h"
+#include "software_interrupt.h"
 
 // LED and button array
 //static uint8_t LEDS[2] = {BUCKLER_LED0, BUCKLER_LED1};
@@ -52,6 +53,7 @@ typedef enum {
 
 volatile uint8_t direction = 0;
 static uint8_t brake = 0;
+static bool timerStarted = false;
 
 // Intervals for advertising and connections
 static simple_ble_config_t ble_config = {
@@ -120,8 +122,12 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
       if (!nrfx_gpiote_in_is_set(BUTTONS[0])) {
         if(nrf_gpio_pin_out_read(LEDS[0]) == 1) {
           nrfx_gpiote_out_clear(LEDS[0]);
+          ble_brake_write(0);
+          printf("0\n");
         } else {
           nrfx_gpiote_out_set(LEDS[0]);
+          ble_brake_write(2);
+          printf("2\n");
         }
       }
       break;
@@ -132,8 +138,12 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
       if (!nrfx_gpiote_in_is_set(BUTTONS[1])) {
         if(nrf_gpio_pin_out_read(LEDS[1]) == 1) {
           nrfx_gpiote_out_clear(LEDS[1]);
+          ble_brake_write(0);
+          printf("0\n");
         } else {
           nrfx_gpiote_out_set(LEDS[1]);
+          ble_brake_write(3);
+          printf("3\n");
         }
       }
       break;
@@ -141,6 +151,29 @@ void pin_change_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   }
 }
 
+void SWI1_EGU1_IRQHandler(void) {
+  printf("swi\n");
+    NRF_EGU1->EVENTS_TRIGGERED[0] = 0;
+    if(!timerStarted){
+      ble_brake_write(1);
+      printf("1\n");
+    }
+    timer_init();
+    NRF_TIMER4->TASKS_START = 1;
+    //timer_stop();
+    //timer_start();
+    timerStarted = true;
+}
+
+void TIMER4_IRQHandler(void) {
+  // This should always be the first line of the interrupt handler!
+  // It clears the event so that it doesn't happen again
+  NRF_TIMER4->EVENTS_COMPARE[0] = 0;
+  printf("timer\n");
+  ble_brake_write(0);
+  printf("0\n");
+  timerStarted = false;
+}
 
 
 int main(void) {
@@ -251,6 +284,13 @@ int main(void) {
   error_code = nrfx_gpiote_in_init(BUTTONS[1], &in_config, pin_change_handler);
   nrfx_gpiote_in_event_enable(BUTTONS[1], true);
 
+  //initialize software interrupt
+  software_interrupt_init();
+  printf("software_interrupt initialized\n");
+
+  timer_init();
+  printf("timer initialized\n");
+
   APP_ERROR_CHECK(error_code);
   printf("initialized!\n");
 
@@ -265,6 +305,8 @@ int main(void) {
   setMode(DRV2605_MODE_EXTTRIGEDGE); 
   // loop forever
   uint8_t effect = 14;
+  //int prev_x = 0;
+
 
   // loop forever, running state machine
   while (1) {
@@ -339,6 +381,10 @@ int main(void) {
       case(0):{
         display_write("", DISPLAY_LINE_1);
         if(turned){
+          if(nrf_gpio_pin_out_read(LEDS[1]) == 1 
+            || nrf_gpio_pin_out_read(LEDS[0]) == 1){
+            ble_brake_write(0);
+          }
           nrfx_gpiote_out_clear(LEDS[0]);
           nrfx_gpiote_out_clear(LEDS[1]);
         }
@@ -360,25 +406,20 @@ int main(void) {
 
       case(10):{
         display_write("     BRAKE", DISPLAY_LINE_1);
-        ble_brake_write(5);
-        if(turned){
-          nrfx_gpiote_out_clear(LEDS[0]);
-          nrfx_gpiote_out_clear(LEDS[1]);
-        }
-        turned = false;
+        software_interrupt_generate();
         break;
       }
 
       case(11):{
         display_write("LEFT BRAKE", DISPLAY_LINE_1);
-        ble_brake_write(5);
+        software_interrupt_generate();
         turned = true;
         break;
       }
 
       case(12):{
         display_write("     BRAKE RIGHT", DISPLAY_LINE_1);
-        ble_brake_write(5);
+        software_interrupt_generate();
         turned = true;
         break;
       }

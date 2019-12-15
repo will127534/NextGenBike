@@ -94,7 +94,7 @@ static const float still_threshold = 0.05;
     return rotated_measurement;
   }
 
-  mpu9250_measurement_t read_smoothed(){
+  mpu9250_measurement_t read_smoothed(void){
     acc_measurement.x_axis = 0;
     acc_measurement.y_axis = 0;
     acc_measurement.z_axis = 0;
@@ -123,7 +123,7 @@ static const float still_threshold = 0.05;
 
   //return 10 for break
   //return 00 for forward, 01 for left, 02 for right
-  int read_bike_state(){
+  int read_bike_state(void){
     acc_measurement = read_smoothed();
 
     if(is_still(acc_measurement)){
