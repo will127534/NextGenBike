@@ -425,7 +425,7 @@ int main(void) {
       
       for (int i=0; i < 34; i++) {
         if(brake==1){
-          SetPixelColor(i, Wheel(330));
+          SetPixelColor(i, Wheel(330 ));
         }
         else if(brake == 2){
           SetPixelColorRGB(i, left_R[degreeCount][i],left_G[degreeCount][i],left_B[degreeCount][i]);
