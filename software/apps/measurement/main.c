@@ -122,6 +122,9 @@ int main (void) {
   
   // configure two gpio buttons
   // input pin, trigger on releasing
+  //nrf_gpio_pin_dir_set(BUTTONS[0], NRF_GPIO_PIN_DIR_INPUT);
+  //nrf_gpio_pin_dir_set(BUTTONS[1], NRF_GPIO_PIN_DIR_INPUT);
+
   nrfx_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_TOGGLE(false);
   in_config.pull = NRF_GPIO_PIN_PULLUP;
   error_code = nrfx_gpiote_in_init(BUTTONS[0], &in_config, pin_change_handler);

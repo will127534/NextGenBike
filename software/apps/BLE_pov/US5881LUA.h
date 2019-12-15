@@ -6,6 +6,7 @@
 // uint32_t revolutions;
 uint32_t oldTime;
 uint32_t rpm;
+uint32_t originalRPM;
 uint32_t degreeWidth;
 uint32_t degreeCount;
 uint32_t picWidth;

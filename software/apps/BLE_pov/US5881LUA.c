@@ -48,6 +48,7 @@ void setup(void){
     // revolutions = 0;
     oldTime = read_timer();
     rpm = 0;
+    originalRPM = 0;
     picWidth=360;//36*35
 }
 
