@@ -19,8 +19,7 @@
 #include "APA102.h"
 #include "font8x8_basic.h"
 #include "image.h"
-
-/*#include "simple_ble.h"
+#include "simple_ble.h"
 
 volatile uint8_t brake = 0;
 
@@ -52,7 +51,7 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
   uint8_t* data = (p_ble_evt -> evt).gatts_evt.params.write.data;
   brake = *data;
   printf("ble send brake = %d\n", brake);
-}*/
+}
 
 // LED array
 static uint8_t LEDS[3] = {NRF_GPIO_PIN_MAP(0,30),NRF_GPIO_PIN_MAP(0,31), BUCKLER_LED2};
@@ -83,75 +82,75 @@ uint32_t Wheel(uint32_t WheelPos){
     return r<<16|g<<8|b;
 }
 
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<72; i++) {
-      SetPixelColor(i, c);
-      PixelShow();
-      nrf_delay_ms(wait);
-  }
-}
+// // Fill the dots one after the other with a color
+// void colorWipe(uint32_t c, uint8_t wait) {
+//   for(uint16_t i=0; i<72; i++) {
+//       SetPixelColor(i, c);
+//       PixelShow();
+//       nrf_delay_ms(wait);
+//   }
+// }
 
-void rainbow(uint8_t wait) {
-  uint16_t i, j;
+// void rainbow(uint8_t wait) {
+//   uint16_t i, j;
 
-  for(j=0; j<256; j++) {
-    for(i=0; i<72; i++) {
-      SetPixelColor(i, Wheel((i+j) & 255));
-    }
-    PixelShow();
-    nrf_delay_ms(wait);
-  }
-}
+//   for(j=0; j<256; j++) {
+//     for(i=0; i<72; i++) {
+//       SetPixelColor(i, Wheel((i+j) & 255));
+//     }
+//     PixelShow();
+//     nrf_delay_ms(wait);
+//   }
+// }
 
-// Slightly different, this makes the rainbow equally distributed throughout
-void rainbowCycle(uint8_t wait) {
-  uint16_t i, j;
+// // Slightly different, this makes the rainbow equally distributed throughout
+// void rainbowCycle(uint8_t wait) {
+//   uint16_t i, j;
 
-  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< 72; i++) {
-      SetPixelColor(i, Wheel(((i * 256 / 72) + j) & 255));
-    }
-    PixelShow();
-    nrf_delay_ms(wait);
-  }
-}
+//   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+//     for(i=0; i< 72; i++) {
+//       SetPixelColor(i, Wheel(((i * 256 / 72) + j) & 255));
+//     }
+//     PixelShow();
+//     nrf_delay_ms(wait);
+//   }
+// }
 
-//Theatre-style crawling lights.
-void theaterChase(uint32_t c, uint8_t wait) {
-  for (int j=0; j<10; j++) {  //do 10 cycles of chasing
-    for (int q=0; q < 3; q++) {
-      for (int i=0; i < 72; i=i+3) {
-        SetPixelColor(i+q, c);    //turn every third pixel on
-      }
-      PixelShow();
+// //Theatre-style crawling lights.
+// void theaterChase(uint32_t c, uint8_t wait) {
+//   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
+//     for (int q=0; q < 3; q++) {
+//       for (int i=0; i < 72; i=i+3) {
+//         SetPixelColor(i+q, c);    //turn every third pixel on
+//       }
+//       PixelShow();
 
-      nrf_delay_ms(wait);
+//       nrf_delay_ms(wait);
 
-      for (int i=0; i < 72; i=i+3) {
-        SetPixelColor(i+q, 0);        //turn every third pixel off
-      }
-    }
-  }
-}
+//       for (int i=0; i < 72; i=i+3) {
+//         SetPixelColor(i+q, 0);        //turn every third pixel off
+//       }
+//     }
+//   }
+// }
 
-//Theatre-style crawling lights with rainbow effect
-void theaterChaseRainbow(uint8_t wait) {
-  for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
-    for (int q=0; q < 3; q++) {
-        for (int i=0; i < 72; i=i+3) {
-          SetPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
-        }
-        PixelShow();
+// //Theatre-style crawling lights with rainbow effect
+// void theaterChaseRainbow(uint8_t wait) {
+//   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
+//     for (int q=0; q < 3; q++) {
+//         for (int i=0; i < 72; i=i+3) {
+//           SetPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
+//         }
+//         PixelShow();
 
-        nrf_delay_ms(wait);
+//         nrf_delay_ms(wait);
 
-        for (int i=0; i < 72; i=i+3) {
-          SetPixelColor(i+q, 0);        //turn every third pixel off
-        }
-    }
-  }
-}
+//         for (int i=0; i < 72; i=i+3) {
+//           SetPixelColor(i+q, 0);        //turn every third pixel off
+//         }
+//     }
+//   }
+// }
 
 
 
@@ -261,7 +260,7 @@ int main(void) {
   /////////////////////////////////////////////////////////////////////////////////////////////
 
   // Setup BLE
-/*simple_ble_app = simple_ble_init(&ble_config);
+simple_ble_app = simple_ble_init(&ble_config);
 
   simple_ble_add_service(&robot_service);
 
@@ -272,10 +271,10 @@ int main(void) {
 
   // Start Advertising
   simple_ble_adv_only_name();
-*/
-  // char * test = "blah";
-  // simple_ble_adv_manuf_data(test, strlen(test));
-  // simple_ble_adv_manuf_data(brake, strlen(brake));
+
+  char * test = "blah";
+  simple_ble_adv_manuf_data(test, strlen(test));
+  simple_ble_adv_manuf_data(brake, strlen(brake));
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////// BLE ////////////////////////////////////////////
@@ -328,17 +327,19 @@ int main(void) {
 
   while (1) {
     
-    // if(new_rpm){
-    //   write_LED('0'+(rpm/1)%10, 60,255/11*1);
-    //   write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
-    //   write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
-    //   write_LED('0'+(rpm/1000)%10, 60+8*3,255/11*4);
-    //   write_LED('=', 60+8*4,255/11*5);
-    //   write_LED('M', 60+8*5,255/11*6);
-    //   write_LED('P', 60+8*6,255/11*7);
-    //   write_LED('R', 60+8*7,255/11*8);
-    //   new_rpm = 0;
-    // }
+    if(new_rpm){
+    	
+      write_LED('0'+(rpm/1)%10, 60,255/11*1);
+      write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
+      write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
+      write_LED('0'+(rpm/1000)%10, 60+8*3,255/11*4);
+      write_LED('=', 60+8*4,255/11*5);
+      write_LED('M', 60+8*5,255/11*6);
+      write_LED('P', 60+8*6,255/11*7);
+      write_LED('R', 60+8*7,255/11*8);
+      
+      new_rpm = 0;
+    }
 
     /*
       for (int i=0; i < 35; i++) {
@@ -394,7 +395,7 @@ int main(void) {
         // }
         // else
         //   SetPixelColor(i,0);
-        SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
+        //SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
         
       }
       PixelShow();

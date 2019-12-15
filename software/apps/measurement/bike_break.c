@@ -28,6 +28,7 @@ static int samples_s = 5;
 static float break_sensitivity_s = 50;
 static float turn_sensitivity_s = 20;
 static float acc_threshold = 0.2;
+static float still_threshold = 0.05;
   
   void convert_angle_to_quaternion(mpu9250_measurement_t angle){
     float yaw = angle.z_axis * 3.1415 / 180;
@@ -110,10 +111,25 @@ static float acc_threshold = 0.2;
     return acc_measurement;
   }
 
+  bool is_still(mpu9250_measurement_t acc){
+    if(acc.x_axis > still_threshold || acc.x_axis < -still_threshold || 
+       acc.y_axis > still_threshold || acc.y_axis < -still_threshold || 
+       acc.z_axis-1 > still_threshold || acc.z_axis-1 < -still_threshold){
+        return false;
+    } else {
+        return true;
+    }
+  }
+
   //return 10 for break
   //return 00 for forward, 01 for left, 02 for right
   int read_bike_state(){
     acc_measurement = read_smoothed();
+
+    if(is_still(acc_measurement)){
+        mpu9250_stop_gyro_integration();
+        mpu9250_start_gyro_integration();
+    }
     gyro_measurement = mpu9250_read_gyro_integration();
     convert_angle_to_quaternion(gyro_measurement);
     rotate_axes(acc_measurement, quaternion);
@@ -126,7 +142,6 @@ static float acc_threshold = 0.2;
     printf("%.6f    ", gyro_measurement.x_axis);
     printf("%.6f    ", gyro_measurement.y_axis);
     printf("%.6f    \n", gyro_measurement.z_axis);
-    
     
     printf("q\n");
     printf("%.6f    ", quaternion.w);
@@ -159,21 +174,21 @@ static float acc_threshold = 0.2;
   }
 
   ret_code_t init_bike_state(int samples, float break_sensitivity, float turn_sensitivity){
-  	if(break_sensitivity < 10){
-  		break_sensitivity = 10;
-  	}
-  	if(samples < 1){
-  		samples = 1;
-  	}
+    if(break_sensitivity < 10){
+        break_sensitivity = 10;
+    }
+    if(samples < 1){
+        samples = 1;
+    }
     if(turn_sensitivity < 5){
         turn_sensitivity = 5;
     }
 
-  	prev_y = 0;
+    prev_y = 0;
     samples_s = samples;
     break_sensitivity_s = break_sensitivity;
     turn_sensitivity_s = turn_sensitivity;
-    mpu9250_calibrate_gyro(samples * 4);
+    //mpu9250_calibrate_gyro(samples * 4);
     mpu9250_calibrate_accel(samples * 4);
     mpu9250_stop_gyro_integration();
     ret_code_t error_code = mpu9250_start_gyro_integration();

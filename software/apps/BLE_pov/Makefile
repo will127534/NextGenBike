@@ -12,11 +12,9 @@ APP_SOURCE_PATHS += .
 APP_SOURCES = $(notdir $(wildcard ./*.c))
 # Path to base of nRF52-base repo
 NRF_BASE_DIR = ../../nrf52x-base/
-
+override CFLAGS += 
 # Include board Makefile (if any)
 include ../../boards/buckler_revB/Board.mk
 
 # Include main Makefile
 include $(NRF_BASE_DIR)make/AppMakefile.mk
- 
-CFLAGS += -O3 -g3 -D__HEAP_SIZE=2048 -D__STACK_SIZE=3440

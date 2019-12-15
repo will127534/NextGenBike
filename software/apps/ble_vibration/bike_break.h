@@ -27,6 +27,12 @@ mpu9250_measurement_t rotate_axes(mpu9250_measurement_t acc, quaternion_t q);
 //return the average acceleration of 3 axies in float points
 mpu9250_measurement_t read_smoothed();
 
+//read the 3 axies from acceleromete
+//calculate is the device still
+//
+//return true if it is still, false otherwise
+bool is_still(mpu9250_measurement_t acc);
+
 //use gyroscope, accelerometer, and quaternion to calcuate the forward
 //acceleration without gravity factor, and find the bike state
 //

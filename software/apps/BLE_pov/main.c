@@ -27,8 +27,13 @@ volatile uint8_t brake = 0;
 static simple_ble_config_t ble_config = {
         // c0:98:e5:49:xx:xx
         .platform_id       = 0x49,    // used as 4th octect in device BLE address
+<<<<<<< HEAD
         .device_id         = 0x0012, // TODO: replace with your lab bench number
         .adv_name          = "POV_BLE", // used in advertisements if there is room
+=======
+        .device_id         = 0x0002, // TODO: replace with your lab bench number
+        .adv_name          = "BIKE", // used in advertisements if there is room
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
         .adv_interval      = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
         .min_conn_interval = MSEC_TO_UNITS(100, UNIT_1_25_MS),
         .max_conn_interval = MSEC_TO_UNITS(200, UNIT_1_25_MS),
@@ -57,7 +62,10 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
 static uint8_t LEDS[3] = {NRF_GPIO_PIN_MAP(0,30),NRF_GPIO_PIN_MAP(0,31), BUCKLER_LED2};
 volatile bool new_degree = 0;
 volatile bool new_rpm = 0;
+<<<<<<< HEAD
 volatile float speed = 0;
+=======
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
 uint32_t Wheel(uint32_t WheelPos){
     float angle = (float)WheelPos;
     
@@ -158,7 +166,10 @@ uint32_t Wheel(uint32_t WheelPos){
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
 void TIMER4_IRQHandler(void) {
   // This should always be the first line of the interrupt handler!
   // It clears the event so that it doesn't happen again
@@ -166,11 +177,18 @@ void TIMER4_IRQHandler(void) {
   // if(degreeCount<picWidth)
   //      printf("degree %ld\n",degreeCount);
   NRF_TIMER4->CC[0]=read_timer()+degreeWidth;
+<<<<<<< HEAD
   degreeCount+=1;
   if(degreeCount>= 360){
     degreeCount -= 360;
   }
   
+=======
+  if(degreeCount>= 360){
+    degreeCount -= 360;
+  }
+  degreeCount+=1;
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
   new_degree = 1;
 
   // Place your interrupt handler code here
@@ -183,7 +201,10 @@ void GPIOTE_IRQHandler(void) {
     // nrf_gpio_pin_toggle(BUCKLER_LED0);
   	// printf("old time:%ld\n",oldTime);
   	rpm = 30*16000000/(read_timer() - oldTime);
+<<<<<<< HEAD
     speed = rpm*10*2*3.14*60/63360.0; 
+=======
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
     new_rpm = 1;
   	degreeWidth = (read_timer() - oldTime)/(picWidth);
   	// printf("total time for one revolution:%ld\n",(read_timer()-oldTime));
@@ -195,11 +216,16 @@ void GPIOTE_IRQHandler(void) {
   	NRF_TIMER4->CC[0]=degreeWidth-1;
   	//printf("RPM: %ld\n", rpm);
 }
+<<<<<<< HEAD
 uint8_t char_array [34][360] = {0};
+=======
+uint8_t char_array [35][180] = {0};
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
 void write_LED(char c, int start, uint8_t color){
   char *fontB;
   fontB=font8x8_basic[c];//E
   //printf("Start=%d,%d\n",start,start+6);
+<<<<<<< HEAD
   for(int i=start+12;i>=start;i-=2){
       for(int j=29;j>=15;j-=2){
         char_array[j][i]=(fontB[7-(j-15)/2]>>(6-(i-start)/2))&1;
@@ -216,6 +242,13 @@ void write_LED(char c, int start, uint8_t color){
           char_array[j-1][i]= 0;
           char_array[j-1][i-1]= 0;
           char_array[j][i-1]= 0;
+=======
+  for(int i=start+6;i>=start;i--){
+      for(int j=30;j>=23;j--){
+        char_array[j][i]=(fontB[7-(j-23)]>>(6-(i-start)))&1;
+        if(char_array[j][i] == 1){
+          char_array[j][i] = color;
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
         }
       }
   }
@@ -245,6 +278,7 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   printf("Log initialized!\n");
+<<<<<<< HEAD
 
 /*
   ble_version_t version;
@@ -255,6 +289,8 @@ int main(void) {
 */
 
   //while(1){}
+=======
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
   NVIC_EnableIRQ(GPIOTE_IRQn);
   NVIC_SetPriority(GPIOTE_IRQn,0);
 
@@ -285,6 +321,7 @@ int main(void) {
   /////////////////////////////////////////////////////////////////////////////////////////////
 
   // Setup BLE
+<<<<<<< HEAD
 
 
 
@@ -303,14 +340,30 @@ int main(void) {
       sizeof(brake), (uint8_t*) &brake,
       &robot_service, &brake_char);
   
+=======
+simple_ble_app = simple_ble_init(&ble_config);
+
+  simple_ble_add_service(&robot_service);
+
+  simple_ble_add_characteristic(1, 1, 1, 0,
+      sizeof(brake), (uint8_t*) &brake,
+      &robot_service, &brake_char);
+  printf("Added Brake characteristics\n");
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
 
   // Start Advertising
   simple_ble_adv_only_name();
 
+<<<<<<< HEAD
   // char * test = "blah";
   // simple_ble_adv_manuf_data(test, strlen(test));
   // simple_ble_adv_manuf_data(brake, strlen(brake));
   // while(1);
+=======
+  char * test = "blah";
+  simple_ble_adv_manuf_data(test, strlen(test));
+  simple_ble_adv_manuf_data(brake, strlen(brake));
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////// BLE ////////////////////////////////////////////
@@ -352,7 +405,11 @@ int main(void) {
   //while(1);
   //  font=font8x8_basic[76];//L
   // for(int i=10;i<17;i++){
+<<<<<<< HEAD
   //   for(int j=27;j<34;j++){
+=======
+  //   for(int j=27;j<35;j++){
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
   //     char_array[i][j]=(font[j-27]>>(i-10))&1;
   //   }
   // }
@@ -360,6 +417,7 @@ int main(void) {
   // loop forever
    // printf("Time: %d\n", oldTime);
   //uint32_t count = 0;
+<<<<<<< HEAD
     /*
       for (int i=0; i < 34; i++) {
            SetPixelColor(i, Wheel(20));
@@ -405,23 +463,71 @@ int main(void) {
       // }
       // if(degreeCount == 270){
       // for (int i=0; i < 34; i++) {
+=======
+
+  while (1) {
+    
+    if(new_rpm){
+    	/*
+      write_LED('0'+(rpm/1)%10, 60,255/11*1);
+      write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
+      write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
+      write_LED('0'+(rpm/1000)%10, 60+8*3,255/11*4);
+      write_LED('=', 60+8*4,255/11*5);
+      write_LED('M', 60+8*5,255/11*6);
+      write_LED('P', 60+8*6,255/11*7);
+      write_LED('R', 60+8*7,255/11*8);
+      */
+      new_rpm = 0;
+    }
+
+    /*
+      for (int i=0; i < 35; i++) {
+           SetPixelColor(i, Wheel(count%360));
+           count ++;
+      }
+      int count=read_timer();
+      PixelShow();
+      printf("%d\n", read_timer()-count);
+      nrf_delay_ms(100); 
+      */
+    if(new_degree){
+      //printf("new_degree %d\n", degreeCount);
+      // if(degreeCount == 180){
+      // for (int i=0; i < 35; i++) {
+      //     SetPixelColor(i, Wheel(280));
+      //   }
+      //   PixelShow();
+      // }
+      // if(degreeCount == 270){
+      // for (int i=0; i < 35; i++) {
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
       //     SetPixelColor(i, Wheel(200));
       //   }
       //   PixelShow();
       // }
       // if(degreeCount == 90){
+<<<<<<< HEAD
       // for (int i=0; i < 34; i++) {
+=======
+      // for (int i=0; i < 35; i++) {
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
       //     SetPixelColor(i, Wheel(30));
       //   }
       //   PixelShow();
       // }
       // if(degreeCount == 10){
+<<<<<<< HEAD
       // for (int i=0; i < 34; i++) {
+=======
+      // for (int i=0; i < 35; i++) {
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
       //     SetPixelColor(i, Wheel(70));
       //   }
       //   PixelShow();
       // }
       // else{
+<<<<<<< HEAD
       
       for (int i=0; i < 34; i++) {
         if(brake==1){
@@ -443,6 +549,18 @@ int main(void) {
           }
         }
           
+=======
+      for (int i=0; i < 35; i++) {
+         /*
+         uint8_t res=char_array[i][degreeCount];
+         if(res!=0)
+           SetPixelColor(i, Wheel(res));
+          else{
+            //SetPixelColorRGB(i, res*255,res*255,res*255);
+           SetPixelColor(i,0);
+          }
+          */
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
         // if(degreeCount==0)
         //   SetPixelColor(i, Wheel(330));
         // else if (degreeCount==20)
@@ -452,6 +570,10 @@ int main(void) {
         // }
         // else
         //   SetPixelColor(i,0);
+<<<<<<< HEAD
+=======
+        //SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
+>>>>>>> 99411e0d0fe281464589e79d9fb00f8538c551b7
         
       }
       PixelShow();
