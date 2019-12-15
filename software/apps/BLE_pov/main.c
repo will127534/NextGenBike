@@ -313,11 +313,6 @@ int main(void) {
   // char * test = "blah";
   // simple_ble_adv_manuf_data(test, strlen(test));
   // simple_ble_adv_manuf_data(brake, strlen(brake));
-  // while(1);
-
-  // char * test = "blah";
-  // simple_ble_adv_manuf_data(test, strlen(test));
-  // simple_ble_adv_manuf_data(brake, strlen(brake));
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////
@@ -404,73 +399,7 @@ int main(void) {
 
 
     if(new_degree){
-      // printf("new_degree %d\n", degreeCount);
-       //if(degreeCount == 180){
-       //for (int i=0; i < 34; i++) {
-       //    SetPixelColor(i, Wheel(280));
-       //  }
-       //  PixelShow();
-      // }
-      // if(degreeCount == 270){
-      // for (int i=0; i < 34; i++) {
-
-
-  while (1) {
-    
-    if(new_rpm){
-    	/*
-      write_LED('0'+(rpm/1)%10, 60,255/11*1);
-      write_LED('0'+(rpm/10)%10, 60+8*1,255/11*2);
-      write_LED('0'+(rpm/100)%10, 60+8*2,255/11*3);
-      write_LED('0'+(rpm/1000)%10, 60+8*3,255/11*4);
-      write_LED('=', 60+8*4,255/11*5);
-      write_LED('M', 60+8*5,255/11*6);
-      write_LED('P', 60+8*6,255/11*7);
-      write_LED('R', 60+8*7,255/11*8);
-      */
-      new_rpm = 0;
-    }
-
-    /*
-      for (int i=0; i < 35; i++) {
-           SetPixelColor(i, Wheel(count%360));
-           count ++;
-      }
-      int count=read_timer();
-      PixelShow();
-      printf("%d\n", read_timer()-count);
-      nrf_delay_ms(100); 
-      */
-    if(new_degree){
       //printf("new_degree %d\n", degreeCount);
-      // if(degreeCount == 180){
-      // for (int i=0; i < 35; i++) {
-      //     SetPixelColor(i, Wheel(280));
-      //   }
-      //   PixelShow();
-      // }
-      // if(degreeCount == 270){
-      // for (int i=0; i < 35; i++) {
-      //     SetPixelColor(i, Wheel(200));
-      //   }
-      //   PixelShow();
-      // }
-      // if(degreeCount == 90){
-      // for (int i=0; i < 34; i++) {
-      //     SetPixelColor(i, Wheel(30));
-      //   }
-      //   PixelShow();
-      // }
-      // if(degreeCount == 10){
-
-      // for (int i=0; i < 34; i++) {
-      //     SetPixelColor(i, Wheel(70));
-      //   }
-      //   PixelShow();
-      // }
-      // else{
-
-      
       for (int i=0; i < 34; i++) {
         if(brake==1){
           SetPixelColor(i, Wheel(330 ));
@@ -482,45 +411,17 @@ int main(void) {
           SetPixelColorRGB(i, right_R[degreeCount][i],right_G[degreeCount][i],right_B[degreeCount][i]);
         }
         else{
-            uint8_t res=char_array[i][degreeCount];
-            if(res!=0)
-              SetPixelColor(i, Wheel(res));
-            else{
-             //SetPixelColorRGB(i, res*255,res*255,res*255);
+          uint8_t res=char_array[i][degreeCount];
+          if(res!=0)
+            SetPixelColor(i, Wheel(res));
+          else{
             SetPixelColor(i,0);
           }
         }
-          
-      // for (int i=0; i < 35; i++) {
-      //    /*
-      //    uint8_t res=char_array[i][degreeCount];
-      //    if(res!=0)
-      //      SetPixelColor(i, Wheel(res));
-      //     else{
-      //       //SetPixelColorRGB(i, res*255,res*255,res*255);
-      //      SetPixelColor(i,0);
-      //     }
-      //     */
-
-      //   // if(degreeCount==0)
-      //   //   SetPixelColor(i, Wheel(330));
-      //   // else if (degreeCount==20)
-      //   // {
-      //   //   /* code */
-      //   //   SetPixelColor(i, Wheel(10));
-      //   // }
-      //   // else
-      //   //   SetPixelColor(i,0);
-
-      //   //SetPixelColorRGB(i, PIC1_Red[degreeCount][i],PIC1_Green[degreeCount][i],PIC1_Blue[degreeCount][i]);
-
-        
-      // }
+      }
+              
       PixelShow();
-
-      // }
-
       new_degree = 0;
-    }
+   } 
   }
 }
