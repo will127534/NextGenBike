@@ -58,6 +58,7 @@ extern void ble_evt_write(ble_evt_t const* p_ble_evt) {
 static uint8_t LEDS[3] = {NRF_GPIO_PIN_MAP(0,30),NRF_GPIO_PIN_MAP(0,31), BUCKLER_LED2};
 volatile bool new_degree = 0;
 volatile bool new_rpm = 0;
+volatile bool rpmBrake = 0;
 volatile float speed = 0;
 
 uint32_t Wheel(uint32_t WheelPos){
@@ -85,110 +86,30 @@ uint32_t Wheel(uint32_t WheelPos){
     return r<<16|g<<8|b;
 }
 
-// // Fill the dots one after the other with a color
-// void colorWipe(uint32_t c, uint8_t wait) {
-//   for(uint16_t i=0; i<72; i++) {
-//       SetPixelColor(i, c);
-//       PixelShow();
-//       nrf_delay_ms(wait);
-//   }
-// }
-
-// void rainbow(uint8_t wait) {
-//   uint16_t i, j;
-
-//   for(j=0; j<256; j++) {
-//     for(i=0; i<72; i++) {
-//       SetPixelColor(i, Wheel((i+j) & 255));
-//     }
-//     PixelShow();
-//     nrf_delay_ms(wait);
-//   }
-// }
-
-// // Slightly different, this makes the rainbow equally distributed throughout
-// void rainbowCycle(uint8_t wait) {
-//   uint16_t i, j;
-
-//   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-//     for(i=0; i< 72; i++) {
-//       SetPixelColor(i, Wheel(((i * 256 / 72) + j) & 255));
-//     }
-//     PixelShow();
-//     nrf_delay_ms(wait);
-//   }
-// }
-
-// //Theatre-style crawling lights.
-// void theaterChase(uint32_t c, uint8_t wait) {
-//   for (int j=0; j<10; j++) {  //do 10 cycles of chasing
-//     for (int q=0; q < 3; q++) {
-//       for (int i=0; i < 72; i=i+3) {
-//         SetPixelColor(i+q, c);    //turn every third pixel on
-//       }
-//       PixelShow();
-
-//       nrf_delay_ms(wait);
-
-//       for (int i=0; i < 72; i=i+3) {
-//         SetPixelColor(i+q, 0);        //turn every third pixel off
-//       }
-//     }
-//   }
-// }
-
-// //Theatre-style crawling lights with rainbow effect
-// void theaterChaseRainbow(uint8_t wait) {
-//   for (int j=0; j < 256; j++) {     // cycle all 256 colors in the wheel
-//     for (int q=0; q < 3; q++) {
-//         for (int i=0; i < 72; i=i+3) {
-//           SetPixelColor(i+q, Wheel( (i+j) % 255));    //turn every third pixel on
-//         }
-//         PixelShow();
-
-//         nrf_delay_ms(wait);
-
-//         for (int i=0; i < 72; i=i+3) {
-//           SetPixelColor(i+q, 0);        //turn every third pixel off
-//         }
-//     }
-//   }
-// }
-
-
-
-
-
-
-
 void TIMER4_IRQHandler(void) {
   // This should always be the first line of the interrupt handler!
   // It clears the event so that it doesn't happen again
   NRF_TIMER4->EVENTS_COMPARE[0] = 0;
-  // if(degreeCount<picWidth)
-  //      printf("degree %ld\n",degreeCount);
   NRF_TIMER4->CC[0]=read_timer()+degreeWidth;
   degreeCount+=1;
   if(degreeCount>= 360){
     degreeCount -= 360;
-  }
-  
+  } 
   new_degree = 1;
-
-  // Place your interrupt handler code here
-
 }
 
 void GPIOTE_IRQHandler(void) {
     NRF_GPIOTE->EVENTS_IN[0] = 0;
-    //printf("interrupt\n");
-    // nrf_gpio_pin_toggle(BUCKLER_LED0);
-  	// printf("old time:%ld\n",oldTime);
+    originalRPM = rpm;
   	rpm = 30*16000000/(read_timer() - oldTime);
+    if(originalRPM-rpm>50||rpm<10)
+      rpmBrake = 1;
+    else
+      rpmBrake = 0;
+
     speed = rpm*10*2*3.14*60/63360.0; 
     new_rpm = 1;
   	degreeWidth = (read_timer() - oldTime)/(picWidth);
-  	// printf("total time for one revolution:%ld\n",(read_timer()-oldTime));
   	degreeCount = 0;
     new_degree = 1;
   	NRF_TIMER4->TASKS_CLEAR = 1;
@@ -225,23 +146,6 @@ void write_LED(char c, int start, uint8_t color){
       }
   }
 }
-
-// void write_LED_string(char str[], int size, int start, uint8_t color){
-//   for(int =0;i<size;i++){ 
-//     char c=str[i];
-//     char *fontB;
-//      fontB=font8x8_basic[c];//E
-//      //printf("Start=%d,%d\n",start,start+6);
-//      for(int i=start+6;i>=start;i--){
-//          for(int j=30;j>=23;j--){
-//            char_array[j][i]=(fontB[7-(j-23)]>>(6-(i-start)))&1;
-//            if(char_array[j][i] == 1){
-//              char_array[j][i] = color;
-//            }
-//          }
-//      }
-//   }
-// }
 
 int main(void) {
   ret_code_t error_code = NRF_SUCCESS;
@@ -319,24 +223,7 @@ int main(void) {
   //////////////////////////////////////////// BLE ////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////
 
-  /*
-  char *fontA;
-  fontA=font8x8_basic[72];//H
-  char *fontB;
-  fontB=font8x8_basic[69];//E
 
-  for(int j=22;j>=15;j--){
-    for(int i=10;i<17;i++){
-      char_array[j][i]=(fontA[8-(j-14)]>>(i-10))&1;
-      printf("%d", char_array[j][i]);
-    }
-    for(int i=20;i<27;i++){
-      char_array[j][i]=(fontB[8-(j-14)]>>(i-20))&1;
-      printf("%d", char_array[j][i]);
-    }
-  }
-
-*/
   // write_LED('D', 7,255/11*1);
   // write_LED('L', 7+8*1,255/11*2);
   // write_LED('R', 7+8*2,255/11*3);
@@ -349,28 +236,7 @@ int main(void) {
   // write_LED('E', 7+8*9,255/11*10);
   // write_LED('H', 7+8*10,255/11*11);
   printf("done\n");
-  // write_LED(",", 47);
-  // write_LED("W", 55);
-  
-  //while(1);
-  //  font=font8x8_basic[76];//L
-  // for(int i=10;i<17;i++){
-  //   for(int j=27;j<34;j++){
-  //     char_array[i][j]=(font[j-27]>>(i-10))&1;
-  //   }
-  // }
-  
-  // loop forever
-   // printf("Time: %d\n", oldTime);
-  //uint32_t count = 0;
-    /*
-      for (int i=0; i < 34; i++) {
-           SetPixelColor(i, Wheel(20));
-      }
-      PixelShow();
-      nrf_delay_ms(100); 
-      while(1);
-      */
+
   while (1) {
     
     if(new_rpm){
@@ -401,8 +267,8 @@ int main(void) {
     if(new_degree){
       //printf("new_degree %d\n", degreeCount);
       for (int i=0; i < 34; i++) {
-        if(brake==1){
-          SetPixelColor(i, Wheel(330 ));
+        if(rpmBrake){
+          SetPixelColor(i, Wheel(330));
         }
         else if(brake == 2){
           SetPixelColorRGB(i, left_R[degreeCount][i],left_G[degreeCount][i],left_B[degreeCount][i]);
